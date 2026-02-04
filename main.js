@@ -32,6 +32,13 @@ async function migrateOldPasswords() {
 }
 
 function createWindow() {
+  // In development we load the icon directly from the project,
+  // in production from the packaged resources folder.
+  const isDev = !app.isPackaged;
+  const iconPath = isDev
+    ? path.join(__dirname, 'assets', 'KYS.ico')
+    : path.join(process.resourcesPath, 'assets', 'KYS.ico');
+
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
@@ -39,7 +46,7 @@ function createWindow() {
     minHeight: 768,
     frame: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, 'public/assets/images/KYS.ico'),
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -49,7 +56,6 @@ function createWindow() {
 
   // In development we load the React dev server (ELECTRON_START_URL),
   // in production we load the built React files from /build
-  const isDev = !app.isPackaged;
   const startUrl = isDev && process.env.ELECTRON_START_URL
     ? process.env.ELECTRON_START_URL
     : `file://${path.join(__dirname, 'build', 'index.html')}`;

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+### [0.2.1] - 2026-02-04
+
+#### Fixed
+- Correctly package and load the custom KYS icon for the app window and installer.
+- Updated electron-builder configuration to use `assets/KYS.ico` in both dev and production.
+
 ### [0.2.0] - 2026-02-04
 
 #### Added

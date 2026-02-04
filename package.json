@@ -1,6 +1,6 @@
 {
   "name": "kys",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Keep Yourself Save Password Manager",
   "main": "main.js",
@@ -44,6 +44,7 @@
     },
     "win": {
       "target": "nsis",
+      "icon": "assets/KYS.ico",
       "sign": null
     },
     "linux": {
