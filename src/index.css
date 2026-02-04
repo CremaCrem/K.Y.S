@@ -1,13 +1,165 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+html, body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
 }
+
+.light {
+  --background: 255, 255, 255;
+  --surface: 245, 245, 247;
+  --text-color: 28, 28, 30;
+  --text-secondary: 142, 142, 147;
+  --hover-text-color: 255, 255, 255;
+  --button: 227, 117, 12;
+  --border-color: 209, 209, 214;
+  --border-select: 227, 117, 12;
+  --hover: 23, 25, 31;
+  --categoryGame: 227, 117, 12;
+  --categoryEmail: 255, 59, 48;
+  --categorySocials: 0, 199, 190;
+  --categoryApp: 175, 82, 222;
+  --categoryBank: 52, 199, 89;
+  --editButton: 0, 122, 255;
+  --deleteButton: 255, 59, 48;
+  --entryList: 242, 242, 247;
+  --entryBar: 227, 117, 12;
+  --card-bg: 255, 255, 255;
+  --input-bg: 255, 255, 255;
+  --scrollbar-color: #c7c7cc;
+  --scrollbar-track-color: #f2f2f7;
+  --scrollbar-thumb-hover-color: #8e8e93;
+}
+
+.dark {
+  --background: 28, 28, 30;
+  --surface: 44, 44, 46;
+  --text-color: 255, 255, 255;
+  --text-secondary: 142, 142, 147;
+  --hover-text-color: 28, 28, 30;
+  --button: 255, 159, 10;
+  --border-color: 58, 58, 60;
+  --border-select: 255, 159, 10;
+  --hover: 255, 159, 10;
+  --categoryGame: 255, 159, 10;
+  --categoryEmail: 255, 69, 58;
+  --categorySocials: 100, 210, 255;
+  --categoryApp: 191, 90, 242;
+  --categoryBank: 48, 209, 88;
+  --editButton: 10, 132, 255;
+  --deleteButton: 255, 69, 58;
+  --entryList: 44, 44, 46;
+  --entryBar: 255, 159, 10;
+  --card-bg: 44, 44, 46;
+  --input-bg: 58, 58, 60;
+  --scrollbar-color: #48484a;
+  --scrollbar-track-color: #1c1c1e;
+  --scrollbar-thumb-hover-color: #636366;
+}
+
+.pink {
+  --background: 255, 241, 246;
+  --surface: 255, 228, 238;
+  --text-color: 199, 21, 133;
+  --text-secondary: 219, 112, 147;
+  --hover-text-color: 255, 255, 255;
+  --button: 255, 105, 180;
+  --border-color: 255, 182, 193;
+  --border-select: 255, 105, 180;
+  --hover: 255, 20, 147;
+  --categoryGame: 255, 105, 180;
+  --categoryEmail: 255, 99, 71;
+  --categorySocials: 0, 206, 209;
+  --categoryApp: 218, 112, 214;
+  --categoryBank: 144, 238, 144;
+  --editButton: 255, 105, 180;
+  --deleteButton: 255, 99, 71;
+  --entryList: 255, 240, 245;
+  --entryBar: 255, 105, 180;
+  --card-bg: 255, 255, 255;
+  --input-bg: 255, 255, 255;
+  --scrollbar-color: #ffb6c1;
+  --scrollbar-track-color: #fff0f5;
+  --scrollbar-thumb-hover-color: #ff69b4;
+}
+
+.vaporwave {
+  --background: 26, 26, 46;
+  --surface: 36, 36, 62;
+  --text-color: 255, 255, 255;
+  --text-secondary: 255, 113, 206;
+  --hover-text-color: 26, 26, 46;
+  --button: 0, 255, 255;
+  --border-color: 255, 113, 206;
+  --border-select: 0, 255, 255;
+  --hover: 255, 113, 206;
+  --categoryGame: 0, 255, 255;
+  --categoryEmail: 255, 113, 206;
+  --categorySocials: 1, 205, 254;
+  --categoryApp: 185, 103, 255;
+  --categoryBank: 5, 255, 161;
+  --editButton: 0, 255, 255;
+  --deleteButton: 255, 113, 206;
+  --entryList: 36, 36, 62;
+  --entryBar: 0, 255, 255;
+  --card-bg: 46, 46, 82;
+  --input-bg: 36, 36, 62;
+  --scrollbar-color: rgba(0, 255, 255, 0.6);
+  --scrollbar-track-color: rgba(26, 26, 46, 0.8);
+  --scrollbar-thumb-hover-color: rgba(255, 113, 206, 0.8);
+}
+
+.alpha-wolf {
+  --background: 18, 18, 18;
+  --surface: 28, 28, 28;
+  --text-color: 255, 255, 255;
+  --text-secondary: 180, 180, 180;
+  --hover-text-color: 18, 18, 18;
+  --button: 220, 38, 38;
+  --border-color: 55, 55, 55;
+  --border-select: 220, 38, 38;
+  --hover: 220, 38, 38;
+  --categoryGame: 220, 38, 38;
+  --categoryEmail: 59, 130, 246;
+  --categorySocials: 236, 72, 153;
+  --categoryApp: 139, 92, 246;
+  --categoryBank: 34, 197, 94;
+  --editButton: 59, 130, 246;
+  --deleteButton: 220, 38, 38;
+  --entryList: 28, 28, 28;
+  --entryBar: 220, 38, 38;
+  --card-bg: 38, 38, 38;
+  --input-bg: 28, 28, 28;
+  --scrollbar-color: rgba(220, 38, 38, 0.6);
+  --scrollbar-track-color: rgba(18, 18, 18, 0.8);
+  --scrollbar-thumb-hover-color: rgba(239, 68, 68, 0.8);
+}
+
+.drag { -webkit-app-region: drag; }
+.no-drag { -webkit-app-region: no-drag; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
+.animate-draw-circle { animation: drawCircle 0.6s ease-out 0.1s forwards; }
+.animate-draw-check { animation: drawCheck 0.4s ease-out 0.5s forwards; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track-color); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
+
+input:focus, select:focus { outline: none; box-shadow: 0 0 0 3px rgba(var(--button), 0.3); }
+button { transition: all 0.2s ease; }
+button:active { transform: scale(0.97); }

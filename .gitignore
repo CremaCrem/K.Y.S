@@ -10,6 +10,16 @@
 
 # production
 /build
+/dist
+
+# electron / packaging artifacts
+/*.log
+/*.yml
+/*.yaml
+/*.dmg
+/*.exe
+/*.app
+
 
 # misc
 .DS_Store

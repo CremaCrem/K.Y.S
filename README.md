@@ -1,70 +1,84 @@
-# Getting Started with Create React App
+## KYS – Keep Yourself Safe Password Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+KYS is a desktop password manager built with **Electron + React**.  
+It stores your passwords locally in a human‑readable JSON file and gives you a **macOS‑inspired UI**, category filters, password strength indicators, and more.
 
-## Available Scripts
+### Download
 
-In the project directory, you can run:
+- **Latest Windows installer**: see the **Releases** page on GitHub.
+- **All versions / old installers**: go to the **Releases** tab to pick a specific version.
 
-### `npm start`
+When you publish a new version, create a GitHub Release (tag like `v0.2.0`) and upload the `.exe` from `dist/`. The “latest” release will always be used as the recommended download.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Local storage**: passwords are saved to `passwords.json` under Electron's `userData` folder (in your AppData), so they survive updates.
+- **Categorized entries**: Email, Games, Socials, Apps, Bank, Work, Entertainment, and more.
+- **Modern UI**: macOS‑style title bar, custom themes, and responsive layout.
+- **Password tools**:
+  - Strength indicator for new passwords.
+  - Duplicate detection to avoid re‑creating the same entry.
+  - Notes field per password.
+- **Import/Export**:
+  - Export all passwords to a JSON backup file.
+  - Import from a JSON file with duplicate detection.
+- **Internationalization**:
+  - Language selector with English, Spanish, and Filipino.
 
-### `npm test`
+### Development
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Start in development mode**
 
-### `npm run build`
+```bash
+npm install
+npm run start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This runs:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `react-scripts start` on `http://localhost:3000`
+- Electron, which waits for the dev server and then loads it
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Building and Packaging
 
-### `npm run eject`
+- **Build the React app**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Build the Windows installer**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm run package
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+This uses `electron-builder` to create a Windows installer (`.exe`) in the `dist/` folder.
 
-## Learn More
+For a release, you typically:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Update the version in `package.json` (e.g. `0.2.0` → `0.2.1`).
+2. Update [`CHANGELOG.md`](./CHANGELOG.md).
+3. Run `npm run build` then `npm run package`.
+4. Create a Git tag (e.g. `v0.2.1`) and GitHub Release.
+5. Upload the new `.exe` from `dist/` to that Release.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Scripts
 
-### Code Splitting
+- **`npm run start`** – start React dev server and Electron together (dev mode).
+- **`npm run build`** – build React into the `build/` folder (used in production).
+- **`npm run test`** – run tests via `react-scripts test`.
+- **`npm run package`** – build a Windows installer with `electron-builder`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Data Location
 
-### Analyzing the Bundle Size
+KYS stores data in Electron's `userData` directory, not inside the repo:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- `passwords.json` is created under `%APPDATA%`/`kys` (or the platform’s equivalent).
+- Updates and reinstalls do **not** wipe your saved passwords unless you manually delete that file.
 
-### Making a Progressive Web App
+If you ever corrupt the file during development, you can delete the `passwords.json` inside the app's `userData` folder and let the app recreate or migrate it again.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Changelog
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+See [`CHANGELOG.md`](./CHANGELOG.md) for a list of changes per version.

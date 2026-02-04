@@ -1,21 +1,54 @@
 {
   "name": "kys",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "description": "Keep Yourself Save Password Manager",
+  "main": "main.js",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env BROWSER=none ELECTRON_START_URL=http://localhost:3000 concurrently \"npm run react-start\" \"npm run electron-wait\"",
+    "react-start": "react-scripts start",
+    "electron-wait": "wait-on http://localhost:3000 && electron .",
+    "electron-dev": "electron .",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "package": "electron-builder --win"
+  },
+  "build": {
+    "extends": null,
+    "appId": "com.mycompany.myapp",
+    "productName": "KYS",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "build/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "main.js"
+    },
+    "win": {
+      "target": "nsis",
+      "sign": null
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +67,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "cross-env": "^7.0.3",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "wait-on": "^8.0.1"
   }
 }
