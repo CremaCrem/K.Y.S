@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { HiChevronDown } from 'react-icons/hi2';
+import { FiMinus, FiMaximize2, FiX } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
 
 const languages = [
@@ -25,27 +26,27 @@ const TitleBar = ({ toggleTheme, currentTheme }) => {
   };
 
   return (
-    <div className="flex justify-between items-center h-10 bg-entryBar px-3 drag relative">
+    <div className="flex justify-between items-stretch h-10 bg-entryBar pl-3 drag relative">
       {/* Left - App Icon */}
       <div className="flex items-center gap-3">
         <span className="text-white font-bold text-sm no-drag">K</span>
       </div>
 
       {/* Right - Controls */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-stretch">
         {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}
-          className="w-7 h-7 rounded-md flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
+          className="w-10 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
         >
           {getThemeIcon()}
         </button>
 
         {/* Language Selector */}
-        <div className="relative no-drag">
+        <div className="relative no-drag flex items-stretch">
           <button 
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="h-7 px-2 rounded-md flex items-center gap-1.5 text-white/80 hover:bg-white/10 transition-colors text-xs font-medium"
+            className="px-3 flex items-center gap-1.5 text-white/80 hover:bg-white/10 transition-colors text-xs font-medium"
           >
             <span>{currentLang.flag}</span>
             <span>{currentLang.name}</span>
@@ -80,23 +81,29 @@ const TitleBar = ({ toggleTheme, currentTheme }) => {
           )}
         </div>
 
-        {/* Window Controls - macOS style */}
-        <div className="flex items-center gap-2 ml-2">
+        {/* Window Controls - Windows style */}
+        <div className="flex items-stretch">
           <button 
             onClick={() => window.electron.minimizeWindow()}
-            className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-500 transition-colors no-drag"
+            className="w-[46px] flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
             title="Minimize"
-          />
+          >
+            <FiMinus size={16} />
+          </button>
           <button 
             onClick={() => window.electron.maximizeWindow()}
-            className="w-3 h-3 rounded-full bg-green-400 hover:bg-green-500 transition-colors no-drag"
+            className="w-[46px] flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
             title="Maximize"
-          />
+          >
+            <FiMaximize2 size={14} />
+          </button>
           <button 
             onClick={() => window.electron.closeWindow()}
-            className="w-3 h-3 rounded-full bg-red-400 hover:bg-red-500 transition-colors no-drag"
+            className="w-[46px] flex items-center justify-center text-white/80 hover:bg-red-600 transition-colors no-drag"
             title="Close"
-          />
+          >
+            <FiX size={18} />
+          </button>
         </div>
       </div>
     </div>

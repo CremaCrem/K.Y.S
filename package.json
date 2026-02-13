@@ -1,6 +1,6 @@
 {
   "name": "kys",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Keep Yourself Save Password Manager",
   "main": "main.js",

@@ -1,7 +1,7 @@
 ## KYS – Keep Yourself Safe Password Manager
 
 KYS is a desktop password manager built with **Electron + React**.  
-It stores your passwords locally in a human‑readable JSON file and gives you a **macOS‑inspired UI**, category filters, password strength indicators, and more.
+It stores your passwords locally in a human‑readable JSON file and gives you a clean modern UI, category filters, password strength indicators, and more.
 
 ### Download
 
@@ -14,7 +14,7 @@ When you publish a new version, create a GitHub Release (tag like `v0.2.0`) and 
 
 - **Local storage**: passwords are saved to `passwords.json` under Electron's `userData` folder (in your AppData), so they survive updates.
 - **Categorized entries**: Email, Games, Socials, Apps, Bank, Work, Entertainment, and more.
-- **Modern UI**: macOS‑style title bar, custom themes, and responsive layout.
+- **Modern UI**: custom title bar, multiple themes, and responsive layout.
 - **Password tools**:
   - Strength indicator for new passwords.
   - Duplicate detection to avoid re‑creating the same entry.

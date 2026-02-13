@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+### [0.2.2] - 2026-02-09
+
+#### Changed
+- Replaced macOS-style traffic light window controls with Windows-style minimize, maximize, and close buttons.
+- Updated README to remove macOS-inspired UI references.
+
 ### [0.2.1] - 2026-02-04
 
 #### Fixed
@@ -11,7 +17,7 @@ All notable changes to this project will be documented in this file.
 ### [0.2.0] - 2026-02-04
 
 #### Added
-- MacOS-inspired UI with custom title bar, themes, and modern layout.
+- Modern UI with custom title bar, themes, and responsive layout.
 - Category-based password organization (Email, Games, Socials, Apps, Bank, Work, Entertainment, etc.).
 - Password statistics (total, by category, reused, and old passwords).
 - Import/export passwords to and from JSON, with duplicate detection.
