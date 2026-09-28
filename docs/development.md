@@ -11,6 +11,10 @@ npm run start
 
 `start` runs the React dev server on `http://localhost:3000` and opens Electron once it is up. DevTools open automatically in dev.
 
+Electron (42+) downloads its binary the first time it runs, not during `npm install`, so the first start takes a bit longer.
+
+Electron only ships security fixes for its latest 3 major versions. Check `npm view electron version` every few months and upgrade (read Electron's [breaking changes](https://github.com/electron/electron/blob/main/docs/breaking-changes.md) first).
+
 ## Scripts
 
 | Script | Does |

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Changed
+- Updated Electron from 32 to 44. Electron 32 no longer received security fixes.
+- Import and export dialogs now open in your Downloads folder.
+
 ### [1.0.0] - 2026-09-28
 
 The first release that encrypts your passwords.
