@@ -3,6 +3,8 @@ import { HiArrowLeft, HiArrowDownTray, HiArrowUpTray } from 'react-icons/hi2';
 import { FaGamepad, FaEnvelope, FaGlobe, FaDesktop, FaUniversity, FaShoppingCart, FaBriefcase, FaFilm, FaSearch, FaTh, FaList } from 'react-icons/fa';
 import EntryCard from '../components/EntryCard';
 import SuccessAnimation from '../components/SuccessAnimation';
+import ExportModal from '../components/ExportModal';
+import ImportModal from '../components/ImportModal';
 import { useLanguage } from '../context/LanguageContext';
 
 const EntriesPage = ({ onBack }) => {
@@ -14,6 +16,8 @@ const EntriesPage = ({ onBack }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [stats, setStats] = useState(null);
+  const [showExport, setShowExport] = useState(false);
+  const [importStart, setImportStart] = useState(null);
 
   const categories = [
     { id: 'Games', icon: FaGamepad, color: 'bg-amber-400' },
@@ -70,22 +74,12 @@ const EntriesPage = ({ onBack }) => {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      const result = await window.electron.exportPasswords();
-      if (result.success) setShowSuccess(true);
-    } catch (error) {
-      console.error('Export failed:', error);
-    }
-  };
-
   const handleImport = async () => {
     try {
       const result = await window.electron.importPasswords();
-      if (result.success) {
-        setShowSuccess(true);
-        fetchData();
-      }
+      if (result.cancelled) return;
+      if (result.ok) fetchData();
+      setImportStart(result);
     } catch (error) {
       console.error('Import failed:', error);
     }
@@ -121,6 +115,8 @@ const EntriesPage = ({ onBack }) => {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
       <SuccessAnimation show={showSuccess} onComplete={() => setShowSuccess(false)} />
+      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
+      {importStart && <ImportModal start={importStart} onClose={() => setImportStart(null)} onImported={fetchData} />}
       
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-4 pb-2">
@@ -144,7 +140,7 @@ const EntriesPage = ({ onBack }) => {
               <HiArrowUpTray size={16} />
             </button>
             <button 
-              onClick={handleExport}
+              onClick={() => setShowExport(true)}
               className="w-9 h-9 rounded-lg bg-surface flex items-center justify-center text-text-color hover:bg-border-color transition-colors"
               title={t('export')}
             >

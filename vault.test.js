@@ -99,3 +99,23 @@ test('tampered entries fail to decrypt instead of returning garbage', async () =
   fs.writeFileSync(file, JSON.stringify(data));
   await assert.rejects(vault.readVault(file, key), /unreadable/);
 });
+
+test('export: round-trips with its password, wrong password returns null', async () => {
+  const file = await vault.sealExport([entry], PASSWORD);
+  assert.strictEqual(vault.exportKind(file), 'encrypted');
+  assert.ok(!JSON.stringify(file).includes('not-real-secret'));
+  assert.deepStrictEqual(await vault.openExport(file, PASSWORD), [entry]);
+  assert.strictEqual(await vault.openExport(file, 'wrong password'), null);
+});
+
+test('export: a changed file fails instead of importing garbage', async () => {
+  const file = await vault.sealExport([entry], PASSWORD);
+  file.data = Buffer.from('tampered').toString('base64');
+  assert.strictEqual(await vault.openExport(file, PASSWORD), null);
+});
+
+test('export: recognizes old plain exports and rejects anything else', () => {
+  assert.strictEqual(vault.exportKind([entry]), 'plain');
+  assert.throws(() => vault.exportKind({ format: 'kys-vault' }), /not a KYS export/);
+  assert.throws(() => vault.exportKind(null), /not a KYS export/);
+});

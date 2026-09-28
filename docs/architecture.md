@@ -53,8 +53,9 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 | `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`. |
 | `deletePassword(id)` | `delete-password` | Removes one entry. |
 | `checkDuplicate(site, username)` | `check-duplicate` | Case-insensitive match on site + username. The returned entry has no `password`. |
-| `exportPasswords()` | `export-passwords` | Warns that the file is unencrypted, then save dialog, writes entries (without `id`) as JSON. |
-| `importPasswords()` | `import-passwords` | Open dialog, merges a JSON array, skips duplicates. |
+| `exportPasswords(masterPassword, filePassword)` | `export-passwords` | Checks the master password (`{ ok: false, error: 'wrongPassword' }` if wrong), then save dialog, writes a `.kys` export encrypted with `filePassword`, or the master password if omitted. `{ ok, count }`. |
+| `importPasswords()` | `import-passwords` | Open dialog. An old plain JSON export is merged right away (`{ ok, imported, skipped }`). An encrypted export stays in `main.js` and returns `{ needsPassword, fileName }`. Anything else: `{ error: 'notExportFile' }`. |
+| `importWithPassword(password)` | `import-with-password` | Decrypts the pending export and merges it (`{ ok, imported, skipped }`), or `{ ok: false, error: 'wrongPassword' }`. The file's contents never reach the UI. |
 | `getStats()` | `get-stats` | Totals by category, reused passwords, entries older than 90 days. |
 | `minimizeWindow()` / `maximizeWindow()` / `closeWindow()` | `*-window` (`send`) | Custom title bar controls. |
 
@@ -109,6 +110,16 @@ How `vault.js` protects the file:
 
 On startup, `migrateOldPasswords()` copies a `passwords.json` from the app directory into `userData` if `userData` has none (legacy location from v0.1.0).
 
+### Export file
+
+`.kys` files are portable: encrypted with a key derived from the export password, not the vault key, so they import into KYS on any computer.
+
+```json
+{ "format": "kys-export", "version": 1, "salt": "…", "iv": "…", "tag": "…", "data": "…" }
+```
+
+`data` decrypts to the entries without `id`. On import, only known fields with the right types are kept, new ids are assigned, and entries whose site + username already exist are skipped. Plain JSON arrays (exports from before 1.3) still import.
+
 See [security.md](security.md) for how the vault is (and is not) protected.
 
 ## UI
@@ -120,6 +131,7 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 - `src/components/SecurityModal.jsx`: change master password, create a new recovery kit. Opened from the shield icon in the title bar (next to the lock icon).
 - `src/pages/HomePage.jsx`: add-password form, generator, duplicate warning.
 - `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, stats.
+- `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
 - Themes: `light`, `dark`, `pink`, `vaporwave`, `alpha-wolf`, cycled from the title bar. Saved in `localStorage` key `theme`.
 - Styling: Tailwind CSS plus `src/App.css`. Fonts (Inter, Montserrat) are bundled from `src/fonts/`; don't load anything from a CDN, the CSP in `public/index.html` blocks it.

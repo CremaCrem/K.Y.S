@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Added
+- Password-protected export and import. Export asks for your master password and saves a `.kys` file protected by it (or by a password you choose). On another computer, Import asks for that password and adds the entries it doesn't already have. Old unencrypted `.json` exports can still be imported.
+
+#### Removed
+- Unencrypted export.
+
 ### [1.2.0] - 2026-09-28
 
 #### Added

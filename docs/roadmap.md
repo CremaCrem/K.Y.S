@@ -24,7 +24,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 ### Later
 
 - [x] "Remember on this computer": unlock with the Windows login (Electron `safeStorage`). Convenience, not recovery.
-- [ ] Encrypted exports.
+- [x] Encrypted exports and imports (moved to Phase 4, shipped there).
 
 ## Phase 3: Hardening ✅ v1.1.0
 

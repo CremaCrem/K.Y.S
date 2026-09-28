@@ -12,6 +12,9 @@ const {
   newRecoveryCode,
   readVault,
   writeVault,
+  sealExport,
+  exportKind,
+  openExport,
 } = require('./vault');
 
 let mainWindow;
@@ -156,6 +159,7 @@ const MIN_PASSWORD_LENGTH = 8;
 
 function lockVault() {
   clearCopiedPassword();
+  pendingImport = null;
   if (!vaultKey) return;
   vaultKey = null;
   if (mainWindow) mainWindow.webContents.send('vault-locked');
@@ -436,101 +440,101 @@ ipcMain.handle('delete-password', async (event, id) => {
   return { success: true, message: 'Password deleted successfully!' };
 });
 
-// Export passwords to JSON file
-ipcMain.handle('export-passwords', async () => {
-  const passwords = await readPasswords();
+// Export: a password-protected .kys file for moving passwords to KYS on
+// another computer. Asks for the master password first, so an unlocked (or
+// remembered) KYS can't be exported by whoever is at the keyboard.
+ipcMain.handle('export-passwords', async (event, { masterPassword, filePassword }) => {
+  requireUnlocked();
+  if (!(await unlockWithPassword(getPasswordsFilePath(), masterPassword))) {
+    return { ok: false, error: 'wrongPassword' };
+  }
+  const password = filePassword || masterPassword;
+  requireNewPassword(password);
 
-  const { response } = await dialog.showMessageBox(mainWindow, {
-    type: 'warning',
-    buttons: ['Cancel', 'Export anyway'],
-    defaultId: 0,
-    cancelId: 0,
-    message: 'The exported file is not encrypted',
-    detail: 'Anyone who opens it can read all your passwords. Keep it somewhere safe and delete it when you no longer need it.',
-  });
-  if (response !== 1) {
-    return { success: false, message: 'Export cancelled' };
-  }
-  
   const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-    title: 'Export Passwords',
-    defaultPath: `kys-backup-${new Date().toISOString().split('T')[0]}.json`,
-    filters: [
-      { name: 'JSON Files', extensions: ['json'] },
-      { name: 'All Files', extensions: ['*'] }
-    ]
+    title: 'Export passwords',
+    defaultPath: `kys-export-${new Date().toISOString().split('T')[0]}.kys`,
+    filters: [{ name: 'KYS export', extensions: ['kys'] }],
   });
-  
-  if (canceled || !filePath) {
-    return { success: false, message: 'Export cancelled' };
-  }
-  
-  // Export without IDs for cleaner file
-  const exportData = passwords.map(({ id, ...rest }) => rest);
-  await fs.writeFile(filePath, JSON.stringify(exportData, null, 2));
-  
-  return { success: true, message: `Exported ${passwords.length} passwords`, path: filePath };
+  if (canceled || !filePath) return { ok: false, cancelled: true };
+
+  const entries = (await readPasswords()).map(({ id, ...rest }) => rest);
+  await fs.writeFile(filePath, JSON.stringify(await sealExport(entries, password)));
+  return { ok: true, count: entries.length };
 });
 
-// Import passwords from JSON file
+// Import: the chosen file stays here. An encrypted export waits in
+// pendingImport until the UI sends its password; the UI never sees the contents.
+let pendingImport = null;
+
+// Only known fields with the right types come in from an import file.
+const IMPORT_TEXT_FIELDS = ['site', 'username', 'password', 'category', 'notes', 'createdAt', 'updatedAt', 'passwordChangedAt'];
+
+function cleanImported(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const clean = {};
+  for (const field of IMPORT_TEXT_FIELDS) {
+    if (typeof entry[field] === 'string' && entry[field]) clean[field] = entry[field];
+  }
+  if (!clean.site && typeof entry.website === 'string') clean.site = entry.website; // pre-0.2 exports
+  if (entry.favorite === true) clean.favorite = true;
+  return clean.site && clean.username && clean.password ? clean : null;
+}
+
+// Adds entries not already saved (same site + username), skips the rest.
+async function importEntries(incoming) {
+  const passwords = await readPasswords();
+  const now = new Date().toISOString();
+  let imported = 0;
+  let skipped = 0;
+  for (const raw of incoming) {
+    const entry = cleanImported(raw);
+    const duplicate = entry && passwords.some(p =>
+      p.site?.toLowerCase() === entry.site.toLowerCase() &&
+      p.username?.toLowerCase() === entry.username.toLowerCase()
+    );
+    if (!entry || duplicate) {
+      skipped++;
+      continue;
+    }
+    passwords.push({ ...entry, id: generateId(), importedAt: now });
+    imported++;
+  }
+  await writePasswords(passwords);
+  return { ok: true, imported, skipped };
+}
+
 ipcMain.handle('import-passwords', async () => {
+  requireUnlocked();
   const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
-    title: 'Import Passwords',
-    filters: [
-      { name: 'JSON Files', extensions: ['json'] },
-      { name: 'All Files', extensions: ['*'] }
-    ],
-    properties: ['openFile']
+    title: 'Import passwords',
+    filters: [{ name: 'KYS export', extensions: ['kys', 'json'] }],
+    properties: ['openFile'],
   });
-  
-  if (canceled || !filePaths.length) {
-    return { success: false, message: 'Import cancelled' };
-  }
-  
+  if (canceled || !filePaths.length) return { ok: false, cancelled: true };
+
+  let file;
+  let kind;
   try {
-    const data = await fs.readFile(filePaths[0], 'utf-8');
-    const importedPasswords = JSON.parse(data);
-    
-    if (!Array.isArray(importedPasswords)) {
-      throw new Error('Invalid format: expected an array of passwords');
-    }
-    
-    const existingPasswords = await readPasswords();
-    
-    // Add IDs to imported entries and merge
-    let imported = 0;
-    let skipped = 0;
-    
-    for (const entry of importedPasswords) {
-      // Check for duplicates
-      const isDuplicate = existingPasswords.some(p => 
-        p.site?.toLowerCase() === entry.site?.toLowerCase() && 
-        p.username?.toLowerCase() === entry.username?.toLowerCase()
-      );
-      
-      if (!isDuplicate && entry.site && entry.username && entry.password) {
-        existingPasswords.push({
-          ...entry,
-          id: generateId(),
-          importedAt: new Date().toISOString()
-        });
-        imported++;
-      } else {
-        skipped++;
-      }
-    }
-    
-    await writePasswords(existingPasswords);
-    
-    return { 
-      success: true, 
-      message: `Imported ${imported} passwords${skipped > 0 ? `, skipped ${skipped} duplicates` : ''}`,
-      imported,
-      skipped
-    };
-  } catch (err) {
-    return { success: false, message: `Import failed: ${err.message}` };
+    file = JSON.parse(await fs.readFile(filePaths[0], 'utf-8'));
+    kind = exportKind(file);
+  } catch {
+    return { ok: false, error: 'notExportFile' };
   }
+  if (kind === 'encrypted') {
+    pendingImport = file;
+    return { ok: false, needsPassword: true, fileName: path.basename(filePaths[0]) };
+  }
+  return importEntries(file);
+});
+
+ipcMain.handle('import-with-password', async (event, password) => {
+  requireUnlocked();
+  if (!pendingImport) throw new Error('Choose a file to import first.');
+  const entries = await openExport(pendingImport, password);
+  if (!entries) return { ok: false, error: 'wrongPassword' };
+  pendingImport = null;
+  return importEntries(Array.isArray(entries) ? entries : []);
 });
 
 // Get password statistics

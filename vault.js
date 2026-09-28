@@ -183,7 +183,41 @@ async function writeVault(filePath, key, entries) {
   await writeAtomic(filePath, file);
 }
 
+// Export file: the entries encrypted with a key derived (scrypt) from a
+// password the user picks, often their master password. It doesn't depend on
+// the vault key, so it can be imported into KYS on another computer.
+//
+// { format: 'kys-export', version: 1, salt, iv, tag, data } (base64)
+const EXPORT_FORMAT = 'kys-export';
+const EXPORT_VERSION = 1;
+
+async function sealExport(entries, password) {
+  const salt = crypto.randomBytes(16);
+  const key = await deriveKey(password, salt);
+  return { format: EXPORT_FORMAT, version: EXPORT_VERSION, salt: b64(salt), ...seal(key, JSON.stringify(entries)) };
+}
+
+// 'encrypted' (KYS export) or 'plain' (JSON array from KYS before 1.3); throws otherwise.
+function exportKind(file) {
+  if (Array.isArray(file)) return 'plain';
+  if (file && file.format === EXPORT_FORMAT && file.version === EXPORT_VERSION) return 'encrypted';
+  throw new Error('This is not a KYS export file.');
+}
+
+// Returns the entries, or null if the password is wrong (or the file was altered).
+async function openExport(file, password) {
+  const key = await deriveKey(password, unb64(file.salt));
+  try {
+    return JSON.parse(open(key, file).toString('utf-8'));
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
+  sealExport,
+  exportKind,
+  openExport,
   vaultStatus,
   createVault,
   unlockWithPassword,

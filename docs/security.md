@@ -17,7 +17,7 @@ An honest description of what KYS protects today. Update this file whenever that
 | Local file access from the UI | ✅ The UI is served from `app://kys/` (only files in `build/`), not `file://`, so it can't read other files on disk. |
 | Packaged app (Electron fuses) | ✅ Can't be run as plain Node (`ELECTRON_RUN_AS_NODE`), no `NODE_OPTIONS` or `--inspect` debugger, loads only its own integrity-checked `app.asar`, no extra `file://` privileges. |
 | Shipped code | ✅ Only the app's own files (~3 MB). No npm packages are bundled into the installer. |
-| Exports | ⚠️ Plain JSON, behind a warning dialog. Treat export files like the passwords themselves. |
+| Exports | ✅ Encrypted `.kys` files (scrypt + AES-256-GCM, same as the vault) protected by the master password or a password you choose. Exporting requires typing the master password, even when unlocked or remembered. Importing decrypts in the main process; the UI never sees the file. |
 | Password generator | ✅ `crypto.getRandomValues` with rejection sampling (no bias); 12–32 characters, always includes each enabled character type. |
 | Clipboard | ✅ Copied in the main process and cleared after 30 s, on lock, and on quit (only if it still holds that password). On Windows it's marked to stay out of clipboard history (Win+V) and cloud clipboard. |
 | Unlocked renderer | ⚠️ While unlocked, the UI holds site names, usernames, and notes. Passwords are fetched one at a time only when revealed or edited. |

@@ -22,7 +22,7 @@ Details: [docs/security.md](docs/security.md).
 - Password generator, strength indicator, and duplicate detection
 - Notes per entry, search, edit, delete
 - Stats: totals, reused passwords, passwords older than 90 days
-- JSON import/export
+- Password-protected export/import: move your passwords to another computer on a USB flash drive
 - Themes and languages (English, Spanish, Filipino)
 
 ## Quick start (development)

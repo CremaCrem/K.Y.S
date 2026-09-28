@@ -33,7 +33,8 @@ contextBridge.exposeInMainWorld('electron', {
   
   // New features
   checkDuplicate: (site, username) => ipcRenderer.invoke('check-duplicate', { site, username }),
-  exportPasswords: () => ipcRenderer.invoke('export-passwords'),
+  exportPasswords: (masterPassword, filePassword) => ipcRenderer.invoke('export-passwords', { masterPassword, filePassword }),
   importPasswords: () => ipcRenderer.invoke('import-passwords'),
+  importWithPassword: (password) => ipcRenderer.invoke('import-with-password', password),
   getStats: () => ipcRenderer.invoke('get-stats'),
 });
