@@ -16,6 +16,7 @@ const {
   exportKind,
   openExport,
 } = require('./vault');
+const { createProfileStore } = require('./profiles');
 
 let mainWindow;
 
@@ -36,16 +37,26 @@ function serveBuild(request) {
   return net.fetch(pathToFileURL(filePath).toString());
 }
 
-// Use userData directory for storing passwords (persists across updates)
-const getPasswordsFilePath = () => path.join(app.getPath('userData'), 'passwords.json');
+// Each person's vault lives in their profile's folder under userData
+// (persists across updates). See profiles.js.
+let profileStore;
+let currentProfileId = null;
+
+function requireProfile() {
+  if (!currentProfileId) throw new Error('No profile selected.');
+  return currentProfileId;
+}
+
+const getPasswordsFilePath = () => profileStore.vaultPath(requireProfile());
 
 // Old file path (for migration from old versions)
 const getOldPasswordsFilePath = () => path.join(__dirname, 'passwords.json');
 
-// Migrate passwords from old location to new location
+// Migrate passwords from the v0.1 location into userData (profiles.js then
+// moves them into a first profile).
 async function migrateOldPasswords() {
   const oldPath = getOldPasswordsFilePath();
-  const newPath = getPasswordsFilePath();
+  const newPath = path.join(app.getPath('userData'), 'passwords.json');
   
   try {
     await fs.access(oldPath);
@@ -115,7 +126,9 @@ function createWindow() {
 }
 
 app.on('ready', async () => {
+  profileStore = createProfileStore(app.getPath('userData'));
   await migrateOldPasswords();
+  await profileStore.migrateLegacy('Me');
   protocol.handle('app', serveBuild);
   createWindow();
   startAutoLock();
@@ -157,11 +170,16 @@ let vaultKey = null;
 const AUTO_LOCK_IDLE_SECONDS = 5 * 60;
 const MIN_PASSWORD_LENGTH = 8;
 
+// With more than one profile, locking also goes back to the profile picker,
+// so whoever uses the computer next can pick themselves.
+let profileCount = 0;
+
 function lockVault() {
   clearCopiedPassword();
   pendingImport = null;
   if (!vaultKey) return;
   vaultKey = null;
+  if (profileCount > 1) currentProfileId = null;
   if (mainWindow) mainWindow.webContents.send('vault-locked');
 }
 
@@ -227,8 +245,7 @@ const writePasswords = (passwords) => writeVault(getPasswordsFilePath(), require
 // (safeStorage: DPAPI on Windows, Keychain on macOS), so only this OS account
 // on this computer can use it. Kept in its own file, not in the vault, so a
 // copied vault doesn't carry it along.
-const getDeviceUnlockPath = () => path.join(app.getPath('userData'), 'device-unlock.bin');
-let triedDeviceUnlock = false;
+const getDeviceUnlockPath = () => profileStore.deviceUnlockPath(requireProfile());
 
 // Uses the async safeStorage API; the sync one is removed in Electron 46.
 async function canRemember() {
@@ -273,20 +290,89 @@ async function readRememberedKey() {
   }
 }
 
+// Switches to a profile (locked). A remembered profile opens right away:
+// picking it is the one click.
+async function selectProfile(id) {
+  await profileStore.find(id);
+  clearCopiedPassword();
+  pendingImport = null;
+  vaultKey = null;
+  currentProfileId = id;
+  vaultKey = await readRememberedKey();
+}
+
+let autoSelected = false;
+
+// 'pick' (choose or create a profile), 'setup' (no vault yet, or a pre-1.0
+// plaintext one), 'locked', 'unlocked', or 'error' (unreadable file; the UI
+// must not offer setup, which would overwrite it).
 ipcMain.handle('vault-status', async () => {
+  const profiles = (await profileStore.list()).map(({ id, name }) => ({ id, name }));
+  profileCount = profiles.length;
+  // With a single profile there's nothing to pick: open it directly at launch.
+  if (!currentProfileId && profiles.length === 1 && !autoSelected) {
+    autoSelected = true;
+    await selectProfile(profiles[0].id);
+  }
+  const profile = profiles.find(p => p.id === currentProfileId);
+  if (!profile) return { status: 'pick', profiles };
+
   try {
     const status = await vaultStatus(getPasswordsFilePath());
-    if (status !== 'encrypted') return { status: 'setup', hasExistingPasswords: status === 'plaintext' };
-    // Open automatically once per launch; after a lock the user clicks "Unlock on this computer".
-    if (!vaultKey && !triedDeviceUnlock) {
-      triedDeviceUnlock = true;
-      vaultKey = await readRememberedKey();
-    }
-    if (vaultKey) return { status: 'unlocked' };
-    return { status: 'locked', remembered: await isRemembered() };
+    if (status !== 'encrypted') return { status: 'setup', profile, hasExistingPasswords: status === 'plaintext' };
+    if (vaultKey) return { status: 'unlocked', profile };
+    return { status: 'locked', profile, remembered: await isRemembered() };
   } catch (err) {
-    return { status: 'error', message: err.message };
+    return { status: 'error', profile, message: err.message };
   }
+});
+
+ipcMain.handle('select-profile', (event, id) => selectProfile(id));
+
+// Back to the profile picker from a locked profile (or to add a person).
+ipcMain.handle('switch-profile', () => {
+  lockVault();
+  vaultKey = null;
+  currentProfileId = null;
+  autoSelected = true;
+});
+
+// Name errors come back as { ok: false, error } so the UI can translate them.
+async function withNameErrors(action) {
+  try {
+    return { ok: true, ...(await action()) };
+  } catch (err) {
+    if (err.key) return { ok: false, error: err.key };
+    throw err;
+  }
+}
+
+// New person: profile + master password in one step, so no half-made profiles.
+ipcMain.handle('create-profile', (event, { name, password }) => withNameErrors(async () => {
+  requireNewPassword(password);
+  const profile = await profileStore.create(name);
+  lockVault();
+  currentProfileId = profile.id;
+  const { key, recoveryCode } = await createVault(profileStore.vaultPath(profile.id), password);
+  vaultKey = key;
+  return { recoveryCode };
+}));
+
+ipcMain.handle('rename-profile', (event, name) => withNameErrors(async () => {
+  requireUnlocked();
+  const { id, name: saved } = await profileStore.rename(requireProfile(), name);
+  return { profile: { id, name: saved } };
+}));
+
+// Deleting a profile (its vault and everything in it) needs its master password.
+ipcMain.handle('delete-profile', async (event, password) => {
+  requireUnlocked();
+  if (!(await unlockWithPassword(getPasswordsFilePath(), password))) return { ok: false, error: 'wrongPassword' };
+  const id = requireProfile();
+  await profileStore.remove(id);
+  lockVault();
+  currentProfileId = null;
+  return { ok: true };
 });
 
 ipcMain.handle('setup-vault', async (event, password) => {

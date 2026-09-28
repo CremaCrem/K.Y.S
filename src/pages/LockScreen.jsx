@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { HiLockClosed, HiExclamationTriangle } from 'react-icons/hi2';
 import NewPasswordFields, { inputClass, labelClass, newPasswordError } from '../components/NewPasswordFields';
+import ProfileAvatar from '../components/ProfileAvatar';
+import ProfilePicker from './ProfilePicker';
 import { useLanguage } from '../context/LanguageContext';
 
-// Shown whenever the vault isn't unlocked: first-time setup, unlock, or
-// "forgot password" recovery. `vault` comes from window.electron.getVaultStatus().
+// Shown whenever the vault isn't unlocked: the profile picker, first-time
+// setup, unlock, or "forgot password" recovery. `vault` comes from
+// window.electron.getVaultStatus().
 const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
   const { t } = useLanguage();
   const [recovering, setRecovering] = useState(false);
@@ -63,15 +66,30 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
     });
   };
 
+  if (mode === 'pick') {
+    return <ProfilePicker profiles={vault.profiles} onPicked={onUnlocked} onRecoveryCode={onRecoveryCode} />;
+  }
+
+  const switchProfile = (
+    <button
+      type="button"
+      onClick={async () => { await window.electron.switchProfile(); onUnlocked(); }}
+      className="w-full text-sm text-text-secondary hover:underline"
+    >
+      {t('switchProfile')}
+    </button>
+  );
+
   if (mode === 'error') {
     return (
       <div className="h-full bg-background flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-surface rounded-2xl shadow-soft p-6">
-          <div className="flex items-center gap-2 text-red-500 mb-3">
+        <div className="w-full max-w-md bg-surface rounded-2xl shadow-soft p-6 space-y-3">
+          <div className="flex items-center gap-2 text-red-500">
             <HiExclamationTriangle size={20} />
             <h1 className="text-lg font-semibold">{t('vaultErrorTitle')}</h1>
           </div>
           <p className="text-sm text-text-secondary break-words select-text">{vault.message}</p>
+          {switchProfile}
         </div>
       </div>
     );
@@ -93,9 +111,14 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-surface rounded-2xl shadow-soft p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <HiLockClosed className="text-button" size={20} />
-          <h2 className="text-xl font-semibold text-text-color">{t(title)}</h2>
+        <div className="flex items-center gap-3">
+          <ProfileAvatar profile={vault.profile} className="w-12 h-12 text-xl rounded-xl" />
+          <div className="min-w-0">
+            <h2 className="text-xl font-semibold text-text-color">{t(title)}</h2>
+            <p className="text-sm text-text-secondary truncate flex items-center gap-1">
+              <HiLockClosed size={12} /> {vault.profile.name}
+            </p>
+          </div>
         </div>
         <p className="text-sm text-text-secondary">
           {t(intro)} {mode === 'setup' && vault.hasExistingPasswords && t('setupExisting')}
@@ -179,6 +202,7 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
             {t('back')}
           </button>
         )}
+        {mode !== 'recover' && switchProfile}
       </form>
     </div>
   );

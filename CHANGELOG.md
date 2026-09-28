@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Added
+- Profiles for shared computers: KYS opens with a "Who's using KYS?" screen with a card for each person. Each profile has its own master password, recovery kit, and passwords. Add, rename, and delete profiles (deleting needs that profile's master password). The title bar shows whose profile is open.
+- Turning on "Remember on this computer" now shows a warning to accept first, explaining that anyone using the same Windows login could open that profile.
+
+#### Changed
+- Your existing passwords move into a first profile named "Me" automatically. Rename it in Security settings.
+
 ### [1.3.0] - 2026-09-28
 
 #### Added

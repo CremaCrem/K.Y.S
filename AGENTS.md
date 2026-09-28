@@ -22,7 +22,7 @@ The repository owner is the sole author. Coding agents are tools, not contributo
 ## Hard rules
 
 - Never commit `passwords.json`, exports, or any real credentials. Test data must be obviously fake.
-- Vault file access happens only in `vault.js`, covered by `vault.test.js`. The renderer goes through `preload.js`.
+- Vault and profile file access happens only in `vault.js` and `profiles.js`, covered by their tests. The renderer goes through `preload.js`.
 - Every new IPC operation is added in both `main.js` and `preload.js`, and documented in `docs/architecture.md`.
 - Security-related randomness and crypto use Node's `crypto` / Web Crypto, never `Math.random`.
 - Don't add dependencies for what the standard library or a few lines can do.

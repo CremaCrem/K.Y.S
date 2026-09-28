@@ -72,12 +72,18 @@ function App() {
         currentTheme={theme}
         onLock={unlocked ? () => window.electron.lock() : null}
         onSecurity={unlocked ? () => setShowSecurity(true) : null}
+        profileName={unlocked ? vault.profile.name : null}
       />
       <div className="flex-1 overflow-hidden">
         {content}
       </div>
       {showSecurity && unlocked && (
-        <SecurityModal onClose={() => setShowSecurity(false)} onRecoveryCode={setRecoveryCode} />
+        <SecurityModal
+          profile={vault.profile}
+          onClose={() => setShowSecurity(false)}
+          onRecoveryCode={setRecoveryCode}
+          onProfileChanged={refreshVault}
+        />
       )}
     </div>
   );

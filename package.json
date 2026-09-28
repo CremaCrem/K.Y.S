@@ -11,7 +11,7 @@
     "electron-wait": "wait-on http://localhost:3000 && electron .",
     "electron-dev": "electron .",
     "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build",
-    "test": "node --test vault.test.js src/utils/*.test.mjs",
+    "test": "node --test vault.test.js profiles.test.js src/utils/*.test.mjs",
     "eject": "react-scripts eject",
     "package": "electron-builder --win"
   },
@@ -27,6 +27,7 @@
       "main.js",
       "preload.js",
       "vault.js",
+      "profiles.js",
       "src/utils/passwordStrength.mjs",
       "package.json"
     ],

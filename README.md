@@ -1,6 +1,6 @@
 # KYS – Keep Yourself Safe
 
-A desktop password manager built with Electron and React. Your passwords stay on your computer, encrypted with a master password. No account, no cloud.
+A desktop password manager built with Electron and React. Your passwords stay on your computer, encrypted with a master password. No account, no cloud. Made for families that share one computer: everyone gets their own profile.
 
 ## Download
 
@@ -13,10 +13,15 @@ Get the latest Windows installer (`.exe`) from the [Releases](../../releases) pa
 - If you lose both the password and the recovery kit, **nobody can get your passwords back**, not even the developer.
 - Setting KYS up for a parent or friend? Keep a copy of their recovery kit so you can help them if they forget.
 
+## Sharing a computer
+
+When KYS opens, pick your profile (like on Netflix) or click **Add person**. Each profile has its own master password, recovery kit, and passwords, and nobody can open someone else's without their password. Locking goes back to the profile screen so the next person can pick theirs.
+
 Details: [docs/security.md](docs/security.md).
 
 ## Features
 
+- Profiles for everyone who shares the computer
 - Master password with encrypted storage, auto-lock, and a printable recovery kit
 - Categories: Email, Games, Socials, Apps, Bank, Shopping, Work, Entertainment
 - Password generator, strength indicator, and duplicate detection

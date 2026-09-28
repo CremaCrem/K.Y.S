@@ -6,6 +6,13 @@ contextBridge.exposeInMainWorld('electron', {
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),
 
+  // Profiles (one vault per person on this computer)
+  selectProfile: (id) => ipcRenderer.invoke('select-profile', id),
+  switchProfile: () => ipcRenderer.invoke('switch-profile'),
+  createProfile: (name, password) => ipcRenderer.invoke('create-profile', { name, password }),
+  renameProfile: (name) => ipcRenderer.invoke('rename-profile', name),
+  deleteProfile: (password) => ipcRenderer.invoke('delete-profile', password),
+
   // Master password and recovery kit
   getVaultStatus: () => ipcRenderer.invoke('vault-status'),
   setupVault: (password) => ipcRenderer.invoke('setup-vault', password),

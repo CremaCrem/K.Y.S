@@ -10,8 +10,8 @@ const languages = [
   { code: 'fil', name: 'Filipino', flag: '🇵🇭' },
 ];
 
-// onLock / onSecurity are only passed while the vault is unlocked.
-const TitleBar = ({ toggleTheme, currentTheme, onLock, onSecurity }) => {
+// onLock / onSecurity / profileName are only passed while the vault is unlocked.
+const TitleBar = ({ toggleTheme, currentTheme, onLock, onSecurity, profileName }) => {
   const { t, language, changeLanguage } = useLanguage();
   const [showLangMenu, setShowLangMenu] = useState(false);
 
@@ -31,6 +31,7 @@ const TitleBar = ({ toggleTheme, currentTheme, onLock, onSecurity }) => {
       {/* Left - App Icon */}
       <div className="flex items-center gap-3">
         <span className="text-white font-bold text-sm no-drag">K</span>
+        {profileName && <span className="text-white/80 text-xs font-medium truncate max-w-[200px]">{profileName}</span>}
       </div>
 
       {/* Right - Controls */}

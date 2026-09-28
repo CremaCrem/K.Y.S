@@ -7,7 +7,8 @@ KYS is an Electron desktop app with a React (Create React App) UI.
 | Layer | File(s) | Role |
 |---|---|---|
 | Main process | `main.js` | Owns the window, dialogs, IPC handlers, and the in-memory vault key (lock state, auto-lock). |
-| Vault storage | `vault.js` | The only code that reads, writes, encrypts, or decrypts the vault file. No Electron dependency, so it's testable with plain Node. |
+| Vault storage | `vault.js` | The only code that reads, writes, encrypts, or decrypts a vault file. No Electron dependency, so it's testable with plain Node. |
+| Profiles | `profiles.js` | The list of people on this computer and each one's folder. Creates, renames, and removes profiles and moves a pre-1.4 vault into the first one. No Electron dependency. |
 | Preload | `preload.js` | Exposes a small, fixed API to the UI as `window.electron` via `contextBridge`. |
 | Renderer | `src/` | React UI. Has no Node access (`nodeIntegration: false`, `contextIsolation: true`). |
 
@@ -17,18 +18,30 @@ In development the window loads the React dev server (`ELECTRON_START_URL`). Oth
 
 ## Packaging
 
-- Every npm package is a `devDependency`. The UI is bundled into `build/` and `main.js` only uses Electron and Node built-ins, so the installer ships just `build/`, `main.js`, `preload.js`, `vault.js`, `src/utils/passwordStrength.mjs` (shared with the UI for the health check), and `package.json`. Don't add runtime `dependencies` unless `main.js` truly needs them.
+- Every npm package is a `devDependency`. The UI is bundled into `build/` and `main.js` only uses Electron and Node built-ins, so the installer ships just `build/`, `main.js`, `preload.js`, `vault.js`, `profiles.js`, `src/utils/passwordStrength.mjs` (shared with the UI for the health check), and `package.json`. Don't add runtime `dependencies` unless `main.js` truly needs them.
 - Electron fuses (`build.electronFuses` in `package.json`) are flipped in the packaged app; see [security.md](security.md). They don't apply to `npm start`.
 
 ## IPC API
 
 All operations use `ipcRenderer.invoke` → `ipcMain.handle`. Password operations throw `The vault is locked.` unless the vault is unlocked.
 
+### Profiles
+
+| `window.electron.*` | Channel | Does |
+|---|---|---|
+| `selectProfile(id)` | `select-profile` | Switches to a profile (locked). A remembered profile unlocks right away. |
+| `switchProfile()` | `switch-profile` | Locks and returns to the profile picker. |
+| `createProfile(name, password)` | `create-profile` | Creates a profile with its vault and master password in one step, opens it, returns `{ ok, recoveryCode }` or `{ ok: false, error: 'nameTaken' \| 'nameInvalid' }`. |
+| `renameProfile(name)` | `rename-profile` | Unlocked only. `{ ok, profile }` or a name error. |
+| `deleteProfile(password)` | `delete-profile` | Unlocked only. Checks the master password, deletes the profile's folder, returns to the picker. `{ ok }` or `{ ok: false, error: 'wrongPassword' }`. |
+
+With one profile, KYS opens it directly at launch and locking stays on its lock screen. With more than one, locking returns to the picker.
+
 ### Master password
 
 | `window.electron.*` | Channel | Does |
 |---|---|---|
-| `getVaultStatus()` | `vault-status` | `{ status }`: `setup` (no vault, or a pre-1.0 plaintext one; then `hasExistingPasswords: true`), `locked` (with `remembered` if this computer can unlock it), `unlocked`, or `error` (with `message`). On the first call per launch it tries the remembered key, so a remembered vault opens unlocked. |
+| `getVaultStatus()` | `vault-status` | `{ status }`: `pick` (no profile selected; with `profiles: [{ id, name }]`), `setup` (no vault, or a pre-1.0 plaintext one; then `hasExistingPasswords: true`), `locked` (with `remembered` if this computer can unlock it), `unlocked`, or `error` (with `message`). All but `pick` include `profile: { id, name }`. |
 | `setupVault(password)` | `setup-vault` | Creates the encrypted vault (migrating plaintext entries), unlocks it, returns `{ recoveryCode }`. Refuses if already encrypted. |
 | `unlock(password)` | `unlock` | `{ ok }`. |
 | `recover(recoveryCode, newPassword)` | `recover` | Forgot password: unlocks with the recovery code and sets a new password. `{ ok }`. |
@@ -64,10 +77,16 @@ Adding a capability means adding it in both `main.js` and `preload.js`. Keep the
 
 ## Data
 
-The vault is one file in Electron's `userData` folder:
+Each profile has its own folder in Electron's `userData` folder:
 
-- Windows: `%APPDATA%\KYS\passwords.json`
-- macOS (dev): `~/Library/Application Support/kys/passwords.json`
+```
+userData/                      Windows: %APPDATA%\KYS   macOS (dev): ~/Library/Application Support/kys
+  profiles.json                { profiles: [{ id, name, createdAt }] }  (names are not secret)
+  profiles/<id>/passwords.json the profile's vault (+ .bak, .tmp)
+  profiles/<id>/device-unlock.bin  only if "Remember on this computer" is on
+```
+
+Before 1.4 the vault was `userData/passwords.json`. On first launch, `profiles.js` moves it (with its backup and remembered key) into a profile named "Me", which can be renamed.
 
 The file is encrypted (format v2, since 1.0.0). Details and reasoning in [security.md](security.md):
 
@@ -109,7 +128,7 @@ How `vault.js` protects the file:
 - **Writes are atomic**: write `passwords.json.tmp`, copy the current file to `passwords.json.bak`, rename the temp file into place.
 - **Recovery**: if the vault is damaged, close KYS and rename `passwords.json.bak` to `passwords.json`. It holds the version before the last save.
 
-"Remember on this computer" stores the vault key, encrypted with Electron's `safeStorage` (DPAPI on Windows, Keychain on macOS), in `device-unlock.bin` next to the vault. It's separate from the vault so a copied vault doesn't carry it. A stored key that no longer opens the vault is deleted; setting up a new vault deletes it too.
+"Remember on this computer" stores a profile's vault key, encrypted with Electron's `safeStorage` (DPAPI on Windows, Keychain on macOS), in `device-unlock.bin` next to that profile's vault. It's separate from the vault so a copied vault doesn't carry it. A stored key that no longer opens the vault is deleted; setting up a new vault deletes it too.
 
 On startup, `migrateOldPasswords()` copies a `passwords.json` from the app directory into `userData` if `userData` has none (legacy location from v0.1.0).
 
@@ -129,9 +148,10 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 
 - Navigation is plain state in `App.js` (`home` ↔ `entries`), no router.
 - `App.js` asks `getVaultStatus()` on start and on every `vault-locked` event. Until the vault is unlocked, only `LockScreen` renders.
-- `src/pages/LockScreen.jsx`: first-time setup, unlock, and "Forgot password?" recovery.
+- `src/pages/ProfilePicker.jsx`: "Who's using KYS?" cards and the create-profile form (name + master password). `src/components/ProfileAvatar.jsx`: initial on a color that stays the same per profile.
+- `src/pages/LockScreen.jsx`: the picker (status `pick`), setup, unlock, and "Forgot password?" recovery, with the profile's name and a "Switch profile" link. The title bar shows whose profile is open.
 - `src/components/RecoveryKit.jsx`: shows a new recovery code with Print / Save as PDF; continuing requires typing its last 4 characters. Rendered by `App.js` above everything else so an auto-lock can't hide an unsaved code.
-- `src/components/SecurityModal.jsx`: change master password, create a new recovery kit. Opened from the shield icon in the title bar (next to the lock icon).
+- `src/components/SecurityModal.jsx`: profile name, change master password, "Remember on this computer" (turning it on needs confirming a warning), new recovery kit, delete profile. Opened from the shield icon in the title bar (next to the lock icon).
 - `src/pages/HomePage.jsx`: add-password form, generator, duplicate warning.
 - `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, and the health tiles (Weak / Reused / Old), which filter the list; cards show a badge per issue. Favorites are listed first; the star button filters to favorites; the sort (name, recently added, recently changed) is saved in `localStorage` key `sortBy`.
 - `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame.

@@ -8,9 +8,10 @@ An honest description of what KYS protects today. Update this file whenever that
 |---|---|
 | Vault encryption | ✅ AES-256-GCM, key unlocked by a master password (since 1.0.0). |
 | Master password | ✅ Mandatory, at least 8 characters. Never stored; only used to derive a key. |
+| Shared computers | ✅ Each profile is a separate vault with its own master password and recovery kit. One person's password can't open another's profile. Profile names are visible to everyone on the picker. Deleting a profile needs its master password. |
 | Forgotten password | ✅ Recovery kit (a one-time code shown at setup). Without the password *or* the code, the data is gone for good. |
 | Lock | ✅ Manual lock button; auto-lock after 5 minutes idle, on screen lock, and on sleep. |
-| Remember on this computer | ⚠️ Off by default. When on, the vault key is stored encrypted by the OS account (DPAPI on Windows), so KYS opens and unlocks without the master password. Protection then equals your Windows account's. |
+| Remember on this computer | ⚠️ Off by default, per profile. Turning it on shows a warning that must be accepted. When on, that profile's vault key is stored encrypted by the Windows account (DPAPI), so it opens without the master password. On a shared Windows login that means **anyone using the computer** can open that profile. |
 | Vault integrity | ✅ Atomic writes, one `.bak` of the previous version, tampering detected by GCM, an unreadable vault is never overwritten. |
 | Renderer isolation | ✅ `contextIsolation: true`, `nodeIntegration: false`. The vault key never leaves the main process. |
 | What the UI can load or contact | ✅ Content Security Policy: only the app's own scripts, styles, fonts, and images; no outside connections. Pop-ups and navigating away are blocked. Fonts are bundled, so the app makes no network requests at all. |

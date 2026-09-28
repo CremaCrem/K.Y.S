@@ -21,7 +21,7 @@ Electron only ships security fixes for its latest 3 major versions. Check `npm v
 |---|---|
 | `npm run start` | Dev mode: React dev server + Electron. |
 | `npm run build` | Production React build into `build/`. |
-| `npm test` | Runs `vault.test.js` and `src/utils/*.test.mjs` with Node's built-in test runner. |
+| `npm test` | Runs `vault.test.js`, `profiles.test.js`, and `src/utils/*.test.mjs` with Node's built-in test runner. |
 | `npm run electron-dev` | Electron only, loading `build/`. Run `build` first. |
 | `npm run package` | Builds the Windows installer (`.exe`) into `dist/` with electron-builder. |
 
@@ -36,7 +36,8 @@ CI=true npm run build
 
 ```
 main.js          Electron main process: window, dialogs, IPC
-vault.js         Vault file read/write (+ vault.test.js)
+vault.js         Vault file read/write/encryption (+ vault.test.js)
+profiles.js      Profiles list and folders (+ profiles.test.js)
 preload.js       Bridge exposing window.electron to the UI
 src/             React UI (pages/, components/, context/)
 public/          CRA static files
@@ -49,7 +50,7 @@ Details: [architecture.md](architecture.md).
 ## Rules
 
 - **Never commit real passwords.** `passwords.json` is git-ignored; keep it that way. Use obviously fake data (`test@example.com`) when testing.
-- Vault reads and writes happen only in `vault.js`, and changes to it come with a test in `vault.test.js`.
+- Vault and profile file access happens only in `vault.js` and `profiles.js`, and changes to them come with tests.
 - New UI text goes into every language in `LanguageContext.js`.
 - Don't add a dependency for something a few lines or Node's standard library can do.
 
