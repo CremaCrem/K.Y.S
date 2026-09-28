@@ -115,4 +115,4 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 - `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, stats.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
 - Themes: `light`, `dark`, `pink`, `vaporwave`, `alpha-wolf`, cycled from the title bar. Saved in `localStorage` key `theme`.
-- Styling: Tailwind CSS plus `src/App.css`.
+- Styling: Tailwind CSS plus `src/App.css`. Fonts (Inter, Montserrat) are bundled from `src/fonts/`; don't load anything from a CDN, the CSP in `public/index.html` blocks it.

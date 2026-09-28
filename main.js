@@ -79,6 +79,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
   });
 
@@ -89,6 +90,12 @@ function createWindow() {
     : APP_URL;
   
   console.log('Loading URL:', startUrl);
+
+  // The window only ever shows KYS itself: no pop-ups, no navigating away.
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (new URL(url).origin !== new URL(startUrl).origin) event.preventDefault();
+  });
 
   mainWindow.loadURL(startUrl).catch(err => {
     console.error('Failed to load URL:', err);

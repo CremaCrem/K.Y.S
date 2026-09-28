@@ -5,9 +5,11 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+    <!-- Only the app's own files may load. 'unsafe-inline' for styles is needed by React style={} props;
+         ws://localhost:3000 is the dev server's live reload. -->
     <meta
-      name="K.Y.S"
-      content="Web site created using create-react-app"
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:3000; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
 
