@@ -43,7 +43,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [x] Password health dashboard: Weak / Reused / Old tiles filter the list, with a badge on each affected entry and a tip on how to fix it.
 - [x] Favorites and sorting.
 
-## Phase 5: Shared computers
+## Phase 5: Shared computers ✅ v1.4.0
 
 - [x] Profiles: a picker with one card per person, each with its own vault, master password, recovery kit, and "Remember" setting.
 - [x] Move the existing vault into a first profile on upgrade.

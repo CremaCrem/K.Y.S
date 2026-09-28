@@ -35,3 +35,6 @@ passwords.json
 
 # local planning notes (not published)
 docs/plans/
+
+# local folder, not part of the project
+/KYS offline password manager/
