@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+### [Unreleased]
+
+#### Added
+- Project documentation in `docs/` (architecture, development, security, roadmap) and `AGENTS.md` for coding agents.
+
+#### Removed
+- Unused bulk-overwrite IPC call (`update-passwords`), unused dependencies, and Create React App leftovers.
+
 ### [0.2.2] - 2026-02-09
 
 #### Changed
