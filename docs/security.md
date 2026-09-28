@@ -12,6 +12,7 @@ An honest description of what KYS protects today. Update this file whenever that
 | Renderer isolation | ✅ `contextIsolation: true`, `nodeIntegration: false`. The UI can only call the operations in `preload.js`. |
 | Password generator | ⚠️ Uses `Math.random`, which is not cryptographically secure. |
 | Clipboard | ⚠️ Copied passwords are never cleared automatically. |
+| Vault integrity | ✅ Atomic writes, one `.bak` of the previous version, and an unreadable vault is never overwritten. |
 
 Until encryption ships, KYS is only as safe as your OS account.
 

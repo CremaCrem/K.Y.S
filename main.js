@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const { readVault, writeVault } = require('./vault');
 
 let mainWindow;
 
@@ -75,6 +76,11 @@ function createWindow() {
 
 app.on('ready', async () => {
   await migrateOldPasswords();
+  try {
+    await readPasswords();
+  } catch (err) {
+    dialog.showErrorBox('KYS could not open your passwords', err.message);
+  }
   createWindow();
 });
 app.on('window-all-closed', () => {
@@ -103,41 +109,8 @@ ipcMain.on('close-window', () => {
   if (mainWindow) mainWindow.close();
 });
 
-// Helper to read passwords file
-async function readPasswords() {
-  const filePath = getPasswordsFilePath();
-  try {
-    const data = await fs.readFile(filePath, 'utf-8');
-    let passwords = JSON.parse(data);
-    
-    let needsMigration = false;
-    passwords = passwords.map(entry => {
-      if (!entry.id) {
-        needsMigration = true;
-        return { ...entry, id: generateId() };
-      }
-      return entry;
-    });
-    
-    if (needsMigration) {
-      await writePasswords(passwords);
-    }
-    
-    return passwords;
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      return [];
-    }
-    console.error('Error reading passwords:', err);
-    return [];
-  }
-}
-
-// Helper to write passwords file
-async function writePasswords(passwords) {
-  const filePath = getPasswordsFilePath();
-  await fs.writeFile(filePath, JSON.stringify(passwords, null, 2));
-}
+const readPasswords = () => readVault(getPasswordsFilePath());
+const writePasswords = (passwords) => writeVault(getPasswordsFilePath(), passwords);
 
 // Generate unique ID for entries
 function generateId() {

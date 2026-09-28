@@ -4,9 +4,9 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 ## Phase 1: Don't lose data (v0.2.3)
 
-- [ ] Only treat a missing vault file as empty. Any other read error must fail loudly instead of returning `[]` (which the next save would write over the real vault).
-- [ ] Atomic writes: write `passwords.json.tmp`, then rename over the real file.
-- [ ] Keep `passwords.json.bak` (the previous version) on every write.
+- [x] Only treat a missing vault file as empty. Any other read error must fail loudly instead of returning `[]` (which the next save would write over the real vault).
+- [x] Atomic writes: write `passwords.json.tmp`, then rename over the real file.
+- [x] Keep `passwords.json.bak` (the previous version) on every write.
 - [ ] Automated Windows builds and GitHub Releases on version tags.
 
 ## Phase 2: Encrypt the vault (v0.3.0 or v1.0.0)

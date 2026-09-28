@@ -17,6 +17,7 @@
     "electron-wait": "wait-on http://localhost:3000 && electron .",
     "electron-dev": "electron .",
     "build": "react-scripts build",
+    "test": "node --test vault.test.js",
     "eject": "react-scripts eject",
     "package": "electron-builder --win"
   },
@@ -31,6 +32,7 @@
       "build/**/*",
       "main.js",
       "preload.js",
+      "vault.js",
       "package.json"
     ],
     "extraMetadata": {

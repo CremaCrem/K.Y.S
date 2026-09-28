@@ -6,7 +6,8 @@ KYS is an Electron desktop app with a React (Create React App) UI.
 
 | Layer | File(s) | Role |
 |---|---|---|
-| Main process | `main.js` | Owns the window, the file system, and every read/write of the vault. |
+| Main process | `main.js` | Owns the window, dialogs, and IPC handlers. |
+| Vault storage | `vault.js` | The only code that reads or writes the vault file. No Electron dependency, so it's testable with plain Node. |
 | Preload | `preload.js` | Exposes a small, fixed API to the UI as `window.electron` via `contextBridge`. |
 | Renderer | `src/` | React UI. Has no Node access (`nodeIntegration: false`, `contextIsolation: true`). |
 
@@ -54,6 +55,12 @@ Entry shape:
 ```
 
 `category`, `notes`, `updatedAt`, `importedAt` are optional. Entries without an `id` get one on first read.
+
+How `vault.js` protects the file:
+
+- **Missing file** = empty vault. **Unreadable file** (bad JSON, not a list, permission error) throws; it is never treated as empty, so a save can't overwrite it. On startup `main.js` shows an error dialog with the path.
+- **Writes are atomic**: write `passwords.json.tmp`, copy the current file to `passwords.json.bak`, rename the temp file into place.
+- **Recovery**: if the vault is damaged, close KYS and rename `passwords.json.bak` to `passwords.json`. It holds the version before the last save.
 
 On startup, `migrateOldPasswords()` copies a `passwords.json` from the app directory into `userData` if `userData` has none (legacy location from v0.1.0).
 

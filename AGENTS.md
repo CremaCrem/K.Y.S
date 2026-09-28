@@ -21,7 +21,7 @@ The repository owner is the sole author. Coding agents are tools, not contributo
 ## Hard rules
 
 - Never commit `passwords.json`, exports, or any real credentials. Test data must be obviously fake.
-- Vault file access happens only in `main.js`. The renderer goes through `preload.js`.
+- Vault file access happens only in `vault.js`, covered by `vault.test.js`. The renderer goes through `preload.js`.
 - Every new IPC operation is added in both `main.js` and `preload.js`, and documented in `docs/architecture.md`.
 - Security-related randomness and crypto use Node's `crypto` / Web Crypto, never `Math.random`.
 - Don't add dependencies for what the standard library or a few lines can do.
@@ -29,7 +29,7 @@ The repository owner is the sole author. Coding agents are tools, not contributo
 
 ## Before finishing a change
 
-1. `CI=true npm run build` passes.
+1. `npm test` and `CI=true npm run build` pass.
 2. Docs in `docs/` still match the code (update them in the same commit).
 3. User-visible changes have a line in the `[Unreleased]` section of `CHANGELOG.md`.
 4. When a roadmap item ships, tick it in `docs/roadmap.md`.
