@@ -21,7 +21,7 @@ Electron only ships security fixes for its latest 3 major versions. Check `npm v
 |---|---|
 | `npm run start` | Dev mode: React dev server + Electron. |
 | `npm run build` | Production React build into `build/`. |
-| `npm test` | Runs `vault.test.js` and `src/utils/generatePassword.test.mjs` with Node's built-in test runner. |
+| `npm test` | Runs `vault.test.js` and `src/utils/*.test.mjs` with Node's built-in test runner. |
 | `npm run electron-dev` | Electron only, loading `build/`. Run `build` first. |
 | `npm run package` | Builds the Windows installer (`.exe`) into `dist/` with electron-builder. |
 

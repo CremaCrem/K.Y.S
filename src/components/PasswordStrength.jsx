@@ -1,54 +1,18 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { passwordStrength } from '../utils/passwordStrength.mjs';
+
+const STYLES = {
+  weak: { color: 'text-red-500', bgColor: 'bg-red-500', width: '25%' },
+  fair: { color: 'text-orange-500', bgColor: 'bg-orange-500', width: '50%' },
+  good: { color: 'text-yellow-500', bgColor: 'bg-yellow-500', width: '75%' },
+  strong: { color: 'text-green-500', bgColor: 'bg-green-500', width: '100%' },
+};
 
 const PasswordStrength = ({ password }) => {
   const { t } = useLanguage();
-
-  const analysis = useMemo(() => {
-    if (!password) return null;
-
-    let score = 0;
-    const checks = {
-      length: password.length >= 12,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      numbers: /[0-9]/.test(password),
-      special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-    };
-
-    if (password.length >= 8) score += 1;
-    if (password.length >= 12) score += 1;
-    if (password.length >= 16) score += 1;
-    if (checks.lowercase) score += 1;
-    if (checks.uppercase) score += 1;
-    if (checks.numbers) score += 1;
-    if (checks.special) score += 2;
-
-    let strength, color, bgColor, width;
-    if (score <= 2) {
-      strength = 'weak';
-      color = 'text-red-500';
-      bgColor = 'bg-red-500';
-      width = '25%';
-    } else if (score <= 4) {
-      strength = 'fair';
-      color = 'text-orange-500';
-      bgColor = 'bg-orange-500';
-      width = '50%';
-    } else if (score <= 6) {
-      strength = 'good';
-      color = 'text-yellow-500';
-      bgColor = 'bg-yellow-500';
-      width = '75%';
-    } else {
-      strength = 'strong';
-      color = 'text-green-500';
-      bgColor = 'bg-green-500';
-      width = '100%';
-    }
-
-    return { score, strength, color, bgColor, width, checks };
-  }, [password]);
+  const strength = passwordStrength(password);
+  const analysis = { strength, ...STYLES[strength] };
 
   if (!password || !analysis) return null;
 

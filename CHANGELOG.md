@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Changed
+- The strength meter now judges length and guessability instead of counting character types: common passwords and patterns like `Password1!`, `aaaa`, or `1234` show as weak, and long passwords show as strong even without symbols.
+
 ### [1.1.0] - 2026-09-28
 
 Security hardening.
