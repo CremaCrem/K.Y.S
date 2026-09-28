@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [2.1.0] - 2026-09-28
+
+#### Changed
+- Slimmer title bar, the same height as other apps. On Mac, it has the usual red, yellow, and green window buttons on the left; on Windows, the usual minimize, maximize, and close buttons on the right.
+
 ### [2.0.0] - 2026-09-28
 
 #### Changed
