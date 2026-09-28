@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [2.0.0] - 2026-09-28
+
 #### Changed
 - New look, following the K.Y.S design system (see `docs/design-system/`). Your passwords are a list with a details panel next to it: select an entry to see, reveal, and copy its username and password, read its notes, and get a tip for each health issue. A rail on the left switches between Vault, Add, and Security, and locks KYS.
 - Editing an entry uses the full Add Password form, with the generator and strength meter. You can now clear an entry's category or notes.
