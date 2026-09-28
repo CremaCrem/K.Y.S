@@ -32,4 +32,5 @@ npm run start
 | [Architecture](docs/architecture.md) | How the app is built, IPC API, data format and location |
 | [Security](docs/security.md) | What is and isn't protected today |
 | [Roadmap](docs/roadmap.md) | Planned work, in order |
+| [Releasing](docs/releasing.md) | Versioning and publishing a new version |
 | [Changelog](CHANGELOG.md) | Changes per version |

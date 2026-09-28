@@ -21,7 +21,7 @@ npm run start
 | `npm run electron-dev` | Electron only, loading `build/`. Run `build` first. |
 | `npm run package` | Builds the Windows installer (`.exe`) into `dist/` with electron-builder. |
 
-Before committing, make sure both pass (the build treats warnings as errors, same as CI):
+Before committing, make sure both pass (the build treats warnings as errors, as in the release workflow):
 
 ```bash
 npm test

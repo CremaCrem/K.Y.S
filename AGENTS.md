@@ -17,6 +17,7 @@ The repository owner is the sole author. Coding agents are tools, not contributo
 - [docs/development.md](docs/development.md): setup, scripts, rules, commit style
 - [docs/security.md](docs/security.md): what is and isn't protected
 - [docs/roadmap.md](docs/roadmap.md): planned work, in order
+- [docs/releasing.md](docs/releasing.md): versioning and the release workflow
 
 ## Hard rules
 
