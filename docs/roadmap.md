@@ -33,7 +33,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [ ] Clear the clipboard ~30 s after copying if it still holds the password.
 - [ ] Electron: `sandbox: true`, a Content Security Policy, block `window.open` and navigation.
 - [ ] List view receives entries without passwords; reveal/copy fetch one password by id.
-- [ ] Electron fuses in the packaged app (needs electron-builder 26).
+- [x] Electron fuses in the packaged app (needs electron-builder 26); UI served from `app://` instead of `file://`; npm packages no longer shipped.
 - [ ] Bundle fonts locally instead of loading them from Google Fonts.
 - [ ] Edit dialog hides the password behind a reveal toggle.
 

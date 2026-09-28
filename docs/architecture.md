@@ -13,6 +13,13 @@ KYS is an Electron desktop app with a React (Create React App) UI.
 
 The renderer never touches the disk. Everything goes through IPC.
 
+In development the window loads the React dev server (`ELECTRON_START_URL`). Otherwise it loads `app://kys/index.html`, a custom protocol `main.js` serves from `build/` only (never `file://`).
+
+## Packaging
+
+- Every npm package is a `devDependency`. The UI is bundled into `build/` and `main.js` only uses Electron and Node built-ins, so the installer ships just `build/`, `main.js`, `preload.js`, `vault.js`, and `package.json`. Don't add runtime `dependencies` unless `main.js` truly needs them.
+- Electron fuses (`build.electronFuses` in `package.json`) are flipped in the packaged app; see [security.md](security.md). They don't apply to `npm start`.
+
 ## IPC API
 
 All operations use `ipcRenderer.invoke` → `ipcMain.handle`. Password operations throw `The vault is locked.` unless the vault is unlocked.

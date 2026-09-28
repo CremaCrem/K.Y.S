@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 #### Changed
 - Updated Electron from 32 to 44. Electron 32 no longer received security fixes.
 - Import and export dialogs now open in your Downloads folder.
+- Smaller, locked-down installer: npm packages are no longer bundled into the app (211 MB → 3 MB of app code), Electron fuses block running KYS as plain Node or attaching a debugger, and the UI loads from a private `app://` protocol instead of `file://`.
+- Your theme and language choice reset once after updating (they're stored per app origin, which changed).
 
 ### [1.0.0] - 2026-09-28
 

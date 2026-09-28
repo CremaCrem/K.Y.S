@@ -12,6 +12,9 @@ An honest description of what KYS protects today. Update this file whenever that
 | Lock | ✅ Manual lock button; auto-lock after 5 minutes idle, on screen lock, and on sleep. |
 | Vault integrity | ✅ Atomic writes, one `.bak` of the previous version, tampering detected by GCM, an unreadable vault is never overwritten. |
 | Renderer isolation | ✅ `contextIsolation: true`, `nodeIntegration: false`. The vault key never leaves the main process. |
+| Local file access from the UI | ✅ The UI is served from `app://kys/` (only files in `build/`), not `file://`, so it can't read other files on disk. |
+| Packaged app (Electron fuses) | ✅ Can't be run as plain Node (`ELECTRON_RUN_AS_NODE`), no `NODE_OPTIONS` or `--inspect` debugger, loads only its own integrity-checked `app.asar`, no extra `file://` privileges. |
+| Shipped code | ✅ Only the app's own files (~3 MB). No npm packages are bundled into the installer. |
 | Exports | ⚠️ Plain JSON, behind a warning dialog. Treat export files like the passwords themselves. |
 | Password generator | ⚠️ Uses `Math.random`, which is not cryptographically secure. |
 | Clipboard | ⚠️ Copied passwords are never cleared automatically. |

@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, dialog, powerMonitor } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, powerMonitor, protocol, net } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
+const { pathToFileURL } = require('url');
 const crypto = require('crypto');
 const {
   vaultStatus,
@@ -14,6 +15,23 @@ const {
 } = require('./vault');
 
 let mainWindow;
+
+// The built UI is served from app://kys/ instead of file://, so the page gets
+// no file:// privileges (the grantFileProtocolExtraPrivileges fuse is off) and
+// can only reach files inside build/.
+const APP_URL = 'app://kys/index.html';
+const BUILD_DIR = path.join(__dirname, 'build');
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+function serveBuild(request) {
+  const filePath = path.join(BUILD_DIR, decodeURIComponent(new URL(request.url).pathname));
+  if (!filePath.startsWith(BUILD_DIR + path.sep)) {
+    return new Response('Not found', { status: 404 });
+  }
+  return net.fetch(pathToFileURL(filePath).toString());
+}
 
 // Use userData directory for storing passwords (persists across updates)
 const getPasswordsFilePath = () => path.join(app.getPath('userData'), 'passwords.json');
@@ -65,10 +83,10 @@ function createWindow() {
   });
 
   // In development we load the React dev server (ELECTRON_START_URL),
-  // in production we load the built React files from /build
+  // in production the built React files from /build via app://
   const startUrl = isDev && process.env.ELECTRON_START_URL
     ? process.env.ELECTRON_START_URL
-    : `file://${path.join(__dirname, 'build', 'index.html')}`;
+    : APP_URL;
   
   console.log('Loading URL:', startUrl);
 
@@ -88,6 +106,7 @@ function createWindow() {
 
 app.on('ready', async () => {
   await migrateOldPasswords();
+  protocol.handle('app', serveBuild);
   createWindow();
   startAutoLock();
 });
