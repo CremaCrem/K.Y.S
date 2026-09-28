@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [1.0.0] - 2026-09-28
+
+The first release that encrypts your passwords.
+
+#### Added
+- Mandatory master password. The vault is encrypted with AES-256-GCM and a key derived from the password with scrypt.
+- Recovery kit: a code shown at setup (print or save as PDF) that lets you set a new password if you forget the old one. Setup can't be finished without confirming it.
+- Lock button, and auto-lock after 5 minutes idle, on screen lock, and on sleep.
+- Security settings: change the master password, create a new recovery kit.
+- Warning before exporting, since export files are not encrypted.
+
+#### Changed
+- Existing 0.2.x passwords are encrypted automatically when you set your master password. The unencrypted backup file is deleted.
+
+#### Note
+- A 1.0 vault can't be opened by 0.2.x versions.
+
 ### [0.2.3] - 2026-09-28
 
 #### Fixed
