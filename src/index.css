@@ -280,6 +280,8 @@ button:focus-visible, [role="button"]:focus-visible { outline: 2px solid var(--k
 .kys-bar-btn { transition: background-color var(--kys-dur-fast) var(--kys-ease); }
 .kys-bar-btn:hover { background-color: rgba(255, 255, 255, 0.16) !important; }
 .kys-bar-btn:focus-visible { outline-color: var(--kys-on-primary); }
+/* Windows close button: red on hover, as in every Windows app. */
+.kys-caption-close:hover { background-color: #C42B1C !important; color: #fff; }
 
 .drag { -webkit-app-region: drag; }
 .no-drag { -webkit-app-region: no-drag; }

@@ -71,7 +71,9 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 | `importPasswords()` | `import-passwords` | Open dialog. An old plain JSON export is merged right away (`{ ok, imported, skipped }`). An encrypted export stays in `main.js` and returns `{ needsPassword, fileName }`. Anything else: `{ error: 'notExportFile' }`. |
 | `importWithPassword(password)` | `import-with-password` | Decrypts the pending export and merges it (`{ ok, imported, skipped }`), or `{ ok: false, error: 'wrongPassword' }`. The file's contents never reach the UI. |
 | `getStats()` | `get-stats` | Password health: `{ total, weak, reused, old, issues }`, where `issues` maps entry id → `['weak' \| 'reused' \| 'old']`. Weak uses `src/utils/passwordStrength.mjs` (the meter's rules), old means no password change in 90 days. Computed here because the UI has no passwords. |
-| `minimizeWindow()` / `maximizeWindow()` / `closeWindow()` | `*-window` (`send`) | Custom title bar controls. |
+| `minimizeWindow()` / `maximizeWindow()` / `closeWindow()` | `*-window` (`send`) | The title bar's window buttons (not used on macOS). `maximizeWindow` toggles maximize. |
+| `platform` | (value) | `process.platform`. `'darwin'` makes the title bar leave room for the native traffic lights instead of drawing buttons. |
+| `onWindowState(callback)` | `window-state` (event) | `{ maximized, fullScreen }` whenever either changes. Returns an unsubscribe function. |
 
 Adding a capability means adding it in both `main.js` and `preload.js`. Keep the API narrow: expose specific operations, never a generic "write the whole file" call.
 
@@ -159,6 +161,7 @@ The look follows the [K.Y.S design system](design-system/README.md).
 - `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame (Escape closes it).
 - `src/components/ui.jsx`: the design system's components (Button, TextField, PasswordRow, Alert...) and the category list. Entries store the category's `value` (`Email`, `Bank`, `WiFi`...), so renaming a label never touches vault data.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
+- Title bar (`src/components/TitleBar.jsx`): 32px. On macOS the window keeps its native traffic lights (`titleBarStyle: 'hidden'` in `main.js`) and the bar leaves 80px for them, except in full screen. On Windows and Linux the window is frameless and the bar draws Windows-style caption buttons (minimize, maximize/restore, close with a red hover).
 - Theme: light or dark, from the title bar. Saved in `localStorage` key `theme` and applied as `data-theme` on `<html>`.
 - Hidden themes (`pink`, `vaporwave`, `alpha-wolf`): easter eggs, unlocked by typing a secret into the vault search (`SECRET_THEMES` in `App.js`). Unlocked ones join the title-bar theme cycle (its icon becomes a palette) and are saved in `localStorage` key `unlockedThemes`. Anyone already using one from an older version keeps it. Their colors are token overrides at the end of the theme section in `src/index.css`; Alpha Wolf's wallpaper is `src/images/awooooo.jpg`.
 - Styling: design tokens (`--kys-*` CSS variables) in `src/index.css`, used through Tailwind (`tailwind.config.js` maps its colors to them) and inline styles. Fonts (Roboto Flex, Roboto Mono, Montserrat) and the icon font (a Material Symbols subset, rebuilt by `scripts/fetch-icons.sh`) are bundled from `src/fonts/`; don't load anything from a CDN, the CSP in `public/index.html` blocks it.

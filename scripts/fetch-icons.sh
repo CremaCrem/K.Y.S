@@ -7,9 +7,9 @@ set -e
 
 ICONS="
 account_balance add apps arrow_back auto_awesome badge category check check_circle
-close content_copy currency_bitcoin dark_mode delete desktop_windows dns download edit
-error expand_more forum home info key language license light_mode lock lock_reset mail
-open_in_full palette print remove search search_off shield shield_lock shopping_bag smart_display
+close content_copy crop_square currency_bitcoin dark_mode delete desktop_windows dns download edit
+error expand_more filter_none forum home info key language license light_mode lock lock_reset mail
+palette print remove search search_off shield shield_lock shopping_bag smart_display
 sports_esports star swap_vert terminal upload visibility visibility_off warning wifi work
 "
 

@@ -1,7 +1,13 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
-  // Window controls
+  // Window controls. `platform` picks the title bar's buttons ('darwin' = macOS).
+  platform: process.platform,
+  onWindowState: (callback) => {
+    const listener = (event, state) => callback(state);
+    ipcRenderer.on('window-state', listener);
+    return () => ipcRenderer.removeListener('window-state', listener);
+  },
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),

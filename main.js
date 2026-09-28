@@ -86,7 +86,11 @@ function createWindow() {
     height: 768,
     minWidth: 1024,
     minHeight: 768,
-    frame: false,
+    // macOS keeps its native traffic lights over our title bar (centered in its
+    // 32px); elsewhere the title bar draws its own window buttons.
+    ...(process.platform === 'darwin'
+      ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 12, y: 10 } }
+      : { frame: false }),
     autoHideMenuBar: true,
     icon: iconPath,
     webPreferences: {
@@ -114,6 +118,16 @@ function createWindow() {
   mainWindow.loadURL(startUrl).catch(err => {
     console.error('Failed to load URL:', err);
   });
+
+  // The title bar swaps the maximize/restore icon and, in macOS full screen,
+  // drops the space it keeps for the traffic lights.
+  const sendWindowState = () => mainWindow.webContents.send('window-state', {
+    maximized: mainWindow.isMaximized(),
+    fullScreen: mainWindow.isFullScreen(),
+  });
+  for (const event of ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen']) {
+    mainWindow.on(event, sendWindowState);
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -156,7 +170,7 @@ ipcMain.on('minimize-window', () => {
 
 ipcMain.on('maximize-window', () => {
   if (mainWindow) {
-    mainWindow.isMaximized() ? mainWindow.restore() : mainWindow.maximize();
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
   }
 });
 

@@ -67,7 +67,7 @@ Each has a `--kys-cat-*` color and a Material Symbols glyph (see `components/vau
 | `components/**` | `src/components/ui.jsx`, same names and props, plus `TextArea`, `NavItem`, `Wordmark`, and `Card` (the white form card). |
 | `CategoryIcon` `CATEGORIES` | `CATEGORIES` in `ui.jsx`. Keyed by the value stored in the vault (`Bank`, `Socials`, `Entertainment`, `WiFi`...), so entries saved before the redesign keep their category. Labels are translation keys. |
 | `SecretField` | Controlled (`shown`, `onToggle`): the vault page fetches a password only when it's revealed, and forgets it when another entry is selected. |
-| `TitleBar` | `src/components/TitleBar.jsx`: theme, language, and window controls. Security and Lock live in the nav rail instead, as in the vault design. |
+| `TitleBar` | `src/components/TitleBar.jsx`: 32px tall (standard for both OSes), with theme and language. Window controls follow the OS: native traffic lights on the left on macOS, Windows 11-style caption buttons (46px, square, red close hover) on the right elsewhere. Security and Lock live in the nav rail instead, as in the vault design. |
 | `ui_kits/desktop/VaultScreen.jsx` | `src/pages/VaultPage.jsx`, plus the health tiles (`StatCard`) above the filter chips. |
 | `ui_kits/desktop/AddPasswordScreen.jsx` | `src/pages/PasswordForm.jsx`, used for both Add and Edit. |
 
