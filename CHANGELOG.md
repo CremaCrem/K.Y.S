@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [1.3.0] - 2026-09-28
+
 #### Added
 - Password health dashboard: the Weak, Reused, and Old tiles on the passwords page show exactly which entries need attention, with a badge on each and a short tip on how to fix it.
 - Favorites: star an entry to keep it at the top, or show only favorites. Sort by name, recently added, or recently changed.

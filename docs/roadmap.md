@@ -37,7 +37,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [x] Bundle fonts locally instead of loading them from Google Fonts.
 - [x] Edit dialog hides the password behind a reveal toggle.
 
-## Phase 4: Features
+## Phase 4: Features ✅ v1.3.0
 
 - [x] Password-protected export and import (`.kys` files) for moving passwords to another computer.
 - [x] Password health dashboard: Weak / Reused / Old tiles filter the list, with a badge on each affected entry and a tip on how to fix it.
