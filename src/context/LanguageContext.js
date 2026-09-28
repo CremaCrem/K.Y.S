@@ -94,6 +94,8 @@ const translations = {
     newKit: "Create a new recovery kit",
     newKitWarning: "Your old recovery kit will stop working. Do this if you lost it or someone else may have seen it.",
     newKitButton: "Create new kit",
+    length: "Length",
+    symbols: "Symbols",
   },
   es: {
     appName: 'K.Y.S',
@@ -188,6 +190,8 @@ const translations = {
     newKit: "Crear un nuevo kit de recuperación",
     newKitWarning: "Tu kit anterior dejará de funcionar. Hazlo si lo perdiste o si alguien más pudo verlo.",
     newKitButton: "Crear nuevo kit",
+    length: "Longitud",
+    symbols: "Símbolos",
   },
   fil: {
     appName: 'K.Y.S',
@@ -282,6 +286,8 @@ const translations = {
     newKit: "Gumawa ng bagong recovery kit",
     newKitWarning: "Hindi na gagana ang luma mong recovery kit. Gawin ito kung nawala mo ito o baka may ibang nakakita.",
     newKitButton: "Gumawa ng bagong kit",
+    length: "Haba",
+    symbols: "Simbolo",
   },
 };
 

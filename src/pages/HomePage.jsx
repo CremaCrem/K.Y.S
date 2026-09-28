@@ -3,6 +3,7 @@ import { FaEye, FaEyeSlash, FaQuestionCircle, FaExclamationTriangle } from 'reac
 import { HiSparkles, HiKey } from 'react-icons/hi2';
 import SuccessAnimation from '../components/SuccessAnimation';
 import PasswordStrength from '../components/PasswordStrength';
+import { generatePassword as makePassword, MIN_LENGTH, MAX_LENGTH, DEFAULT_LENGTH } from '../utils/generatePassword.mjs';
 import { useLanguage } from '../context/LanguageContext';
 
 const HomePage = ({ onNavigate }) => {
@@ -17,6 +18,8 @@ const HomePage = ({ onNavigate }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [genLength, setGenLength] = useState(() => Number(localStorage.getItem('generatorLength')) || DEFAULT_LENGTH);
+  const [genSymbols, setGenSymbols] = useState(() => localStorage.getItem('generatorSymbols') !== 'false');
 
   const categories = [
     { value: 'Games', label: t('games') },
@@ -30,12 +33,9 @@ const HomePage = ({ onNavigate }) => {
   ];
 
   const generatePassword = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let result = '';
-    for (let i = 0; i < 16; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setPassword(result);
+    localStorage.setItem('generatorLength', genLength);
+    localStorage.setItem('generatorSymbols', genSymbols);
+    setPassword(makePassword({ length: genLength, symbols: genSymbols }));
     setShowPassword(true);
   };
 
@@ -202,6 +202,29 @@ const HomePage = ({ onNavigate }) => {
                   <HiSparkles size={14} />
                   {t('generate')}
                 </button>
+              </div>
+              <div className="flex items-center gap-4 mt-2 text-xs text-text-secondary">
+                <label className="flex items-center gap-2">
+                  {t('length')}
+                  <input
+                    type="range"
+                    min={MIN_LENGTH}
+                    max={MAX_LENGTH}
+                    value={genLength}
+                    onChange={(e) => setGenLength(Number(e.target.value))}
+                    className="w-28 accent-button cursor-pointer"
+                  />
+                  <span className="w-5 font-mono text-text-color">{genLength}</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={genSymbols}
+                    onChange={(e) => setGenSymbols(e.target.checked)}
+                    className="accent-button cursor-pointer"
+                  />
+                  {t('symbols')} (!@#$%^&amp;*)
+                </label>
               </div>
               <PasswordStrength password={password} />
             </div>

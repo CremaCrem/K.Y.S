@@ -29,7 +29,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 ## Phase 3: Hardening
 
 - [x] Upgrade Electron to a supported version (32 → 44). Keep it within the latest 3 majors from now on.
-- [ ] Generator uses `crypto.getRandomValues`, with length and character-set options.
+- [x] Generator uses `crypto.getRandomValues`, with length and character-set options.
 - [ ] Clear the clipboard ~30 s after copying if it still holds the password.
 - [x] Electron: `sandbox: true`, a Content Security Policy, block `window.open` and navigation.
 - [ ] List view receives entries without passwords; reveal/copy fetch one password by id.
