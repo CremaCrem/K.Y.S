@@ -39,8 +39,8 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 ## Phase 4: Features
 
+- [x] Password-protected export and import (`.kys` files) for moving passwords to another computer.
 - [x] Password health dashboard: Weak / Reused / Old tiles filter the list, with a badge on each affected entry and a tip on how to fix it.
-- [ ] Import Chrome / Edge / Firefox CSV exports.
 - [x] Favorites and sorting.
 
 ## Not planned
@@ -48,5 +48,6 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - Cloud sync, browser extension, mobile app. Each needs a server or a separate app.
 - TOTP storage: puts both login factors in one file.
 - Breach checks (Have I Been Pwned) and site icons: both need network access, and KYS makes none.
+- Importing browser (Chrome / Edge / Firefox) CSV exports.
 - Password hints: stored unencrypted and usually give the password away.
 - Any hidden or developer-held way into users' vaults. See [security.md](security.md#the-recovery-kit-and-helping-family).
