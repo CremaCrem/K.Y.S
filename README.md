@@ -21,7 +21,7 @@ Details: [docs/security.md](docs/security.md).
 - Categories: Email, Games, Socials, Apps, Bank, Shopping, Work, Entertainment
 - Password generator, strength indicator, and duplicate detection
 - Notes per entry, search, edit, delete
-- Stats: totals, reused passwords, passwords older than 90 days
+- Password health dashboard: see which passwords are weak, reused, or old, with a tip on how to fix each
 - Password-protected export/import: move your passwords to another computer on a USB flash drive
 - Themes and languages (English, Spanish, Filipino)
 

@@ -18,6 +18,7 @@ const EntriesPage = ({ onBack }) => {
   const [stats, setStats] = useState(null);
   const [showExport, setShowExport] = useState(false);
   const [importStart, setImportStart] = useState(null);
+  const [healthFilter, setHealthFilter] = useState(''); // '', 'weak', 'reused', or 'old'
 
   const categories = [
     { id: 'Games', icon: FaGamepad, color: 'bg-amber-400' },
@@ -55,6 +56,7 @@ const EntriesPage = ({ onBack }) => {
       // The list never holds passwords; only the other fields are merged back.
       const { password, ...shown } = updatedEntry;
       setPasswords(prev => prev.map(p => p.id === id ? { ...p, ...shown } : p));
+      setStats(await window.electron.getStats());
       setShowSuccess(true);
     } catch (error) {
       console.error('Failed to update:', error);
@@ -93,7 +95,8 @@ const EntriesPage = ({ onBack }) => {
       siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       password.username?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? password.category === selectedCategory : true;
-    return matchesSearch && matchesCategory;
+    const matchesHealth = !healthFilter || stats?.issues[password.id]?.includes(healthFilter);
+    return matchesSearch && matchesCategory && matchesHealth;
   });
 
   // Group passwords by category for grid view
@@ -149,27 +152,29 @@ const EntriesPage = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Stats Bar */}
+        {/* Password health: each tile filters the list to the entries with that issue */}
         {stats && (
           <div className="grid grid-cols-4 gap-2 mb-4">
-            <div className="bg-surface rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-button">{stats.total}</p>
-              <p className="text-xs text-text-secondary">{t('totalPasswords')}</p>
-            </div>
-            <div className="bg-surface rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-emerald-500">{Object.keys(stats.byCategory).length}</p>
-              <p className="text-xs text-text-secondary">Categories</p>
-            </div>
-            <div className="bg-surface rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-orange-500">{stats.reusedPasswords}</p>
-              <p className="text-xs text-text-secondary">Reused</p>
-            </div>
-            <div className="bg-surface rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-red-500">{stats.oldPasswords}</p>
-              <p className="text-xs text-text-secondary">Old (90d+)</p>
-            </div>
+            {[
+              { id: '', value: stats.total, label: t('totalPasswords'), color: 'text-button' },
+              { id: 'weak', value: stats.weak, label: t('weakPasswords'), color: 'text-red-500' },
+              { id: 'reused', value: stats.reused, label: t('reusedPasswords'), color: 'text-orange-500' },
+              { id: 'old', value: stats.old, label: t('oldPasswords'), color: 'text-yellow-500' },
+            ].map((tile) => (
+              <button
+                key={tile.id || 'total'}
+                onClick={() => setHealthFilter(healthFilter === tile.id ? '' : tile.id)}
+                className={`bg-surface rounded-xl p-3 text-center transition-all hover:bg-border-color/40 ${
+                  tile.id && healthFilter === tile.id ? 'ring-2 ring-button' : ''
+                }`}
+              >
+                <p className={`text-2xl font-bold ${tile.color}`}>{tile.value}</p>
+                <p className="text-xs text-text-secondary">{tile.label}</p>
+              </button>
+            ))}
           </div>
         )}
+        {healthFilter && <p className="text-xs text-text-secondary -mt-2 mb-3 px-1">{t(`${healthFilter}Hint`)}</p>}
 
         {/* Search & Controls */}
         <div className="bg-entryBar rounded-xl p-2 flex items-center gap-2">
@@ -234,7 +239,7 @@ const EntriesPage = ({ onBack }) => {
       <div className="flex-1 overflow-auto px-4 pb-4">
         {filteredPasswords.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-text-secondary">
-            <p className="text-sm">{t('noPasswords')}</p>
+            <p className="text-sm">{healthFilter ? t('noIssues') : t('noPasswords')}</p>
           </div>
         ) : viewMode === 'grid' ? (
           /* Grid View - Grouped by Category */
@@ -264,6 +269,7 @@ const EntriesPage = ({ onBack }) => {
                         username={entry.username} 
                         category={entry.category} 
                         notes={entry.notes}
+                        issues={stats?.issues[entry.id]}
                         compact={true}
                         onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 
                         onDelete={() => handleDelete(entry.id)}
@@ -285,6 +291,7 @@ const EntriesPage = ({ onBack }) => {
                 username={entry.username} 
                 category={entry.category} 
                 notes={entry.notes}
+                issues={stats?.issues[entry.id]}
                 compact={false}
                 onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 
                 onDelete={() => handleDelete(entry.id)}

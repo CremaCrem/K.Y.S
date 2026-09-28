@@ -421,7 +421,14 @@ ipcMain.handle('update-password', async (event, { id, updates }) => {
     throw new Error('Password entry not found');
   }
   
-  passwords[index] = { ...passwords[index], ...updates, updatedAt: new Date().toISOString() };
+  const now = new Date().toISOString();
+  const previous = passwords[index];
+  // "Old" in the dashboard counts from the last password change, not any edit.
+  // Entries from before 1.3 have no passwordChangedAt; their last edit is the best guess.
+  const passwordChanged = updates.password !== undefined && updates.password !== previous.password;
+  const passwordChangedAt = passwordChanged ? now : previous.passwordChangedAt || previous.updatedAt || previous.createdAt;
+  passwords[index] = { ...previous, ...updates, updatedAt: now };
+  if (passwordChangedAt) passwords[index].passwordChangedAt = passwordChangedAt;
   await writePasswords(passwords);
   
   return { success: true, message: 'Password updated successfully!' };
@@ -537,37 +544,28 @@ ipcMain.handle('import-with-password', async (event, password) => {
   return importEntries(Array.isArray(entries) ? entries : []);
 });
 
-// Get password statistics
+// Password health for the dashboard: which entries are weak, reused, or old.
+// Runs here because the UI doesn't hold passwords. Uses the same strength
+// rules as the UI's meter (src/utils/passwordStrength.mjs).
+const OLD_AFTER_DAYS = 90;
+
 ipcMain.handle('get-stats', async () => {
+  const { passwordStrength } = await import('./src/utils/passwordStrength.mjs');
   const passwords = await readPasswords();
-  
-  const stats = {
-    total: passwords.length,
-    byCategory: {},
-    reusedPasswords: 0,
-    oldPasswords: 0
-  };
-  
-  // Count by category
-  passwords.forEach(p => {
-    const cat = p.category || 'Uncategorized';
-    stats.byCategory[cat] = (stats.byCategory[cat] || 0) + 1;
-  });
-  
-  // Check for reused passwords
-  const passwordCounts = {};
-  passwords.forEach(p => {
-    passwordCounts[p.password] = (passwordCounts[p.password] || 0) + 1;
-  });
-  stats.reusedPasswords = Object.values(passwordCounts).filter(c => c > 1).length;
-  
-  // Check for old passwords (> 90 days)
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-  stats.oldPasswords = passwords.filter(p => {
-    const date = new Date(p.updatedAt || p.createdAt);
-    return date < ninetyDaysAgo;
-  }).length;
-  
-  return stats;
+
+  const uses = {};
+  for (const p of passwords) uses[p.password] = (uses[p.password] || 0) + 1;
+  const cutoff = Date.now() - OLD_AFTER_DAYS * 24 * 60 * 60 * 1000;
+
+  const issues = {};
+  for (const p of passwords) {
+    const found = [];
+    if (passwordStrength(p.password) === 'weak') found.push('weak');
+    if (uses[p.password] > 1) found.push('reused');
+    if (Date.parse(p.passwordChangedAt || p.updatedAt || p.createdAt) < cutoff) found.push('old');
+    if (found.length) issues[p.id] = found;
+  }
+  const count = (issue) => Object.values(issues).filter(found => found.includes(issue)).length;
+
+  return { total: passwords.length, weak: count('weak'), reused: count('reused'), old: count('old'), issues };
 });

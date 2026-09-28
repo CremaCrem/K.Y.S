@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### [Unreleased]
 
 #### Added
+- Password health dashboard: the Weak, Reused, and Old tiles on the passwords page show exactly which entries need attention, with a badge on each and a short tip on how to fix it.
 - Password-protected export and import. Export asks for your master password and saves a `.kys` file protected by it (or by a password you choose). On another computer, Import asks for that password and adds the entries it doesn't already have. Old unencrypted `.json` exports can still be imported.
 
 #### Removed

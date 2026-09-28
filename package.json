@@ -27,6 +27,7 @@
       "main.js",
       "preload.js",
       "vault.js",
+      "src/utils/passwordStrength.mjs",
       "package.json"
     ],
     "extraMetadata": {

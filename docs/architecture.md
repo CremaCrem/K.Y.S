@@ -17,7 +17,7 @@ In development the window loads the React dev server (`ELECTRON_START_URL`). Oth
 
 ## Packaging
 
-- Every npm package is a `devDependency`. The UI is bundled into `build/` and `main.js` only uses Electron and Node built-ins, so the installer ships just `build/`, `main.js`, `preload.js`, `vault.js`, and `package.json`. Don't add runtime `dependencies` unless `main.js` truly needs them.
+- Every npm package is a `devDependency`. The UI is bundled into `build/` and `main.js` only uses Electron and Node built-ins, so the installer ships just `build/`, `main.js`, `preload.js`, `vault.js`, `src/utils/passwordStrength.mjs` (shared with the UI for the health check), and `package.json`. Don't add runtime `dependencies` unless `main.js` truly needs them.
 - Electron fuses (`build.electronFuses` in `package.json`) are flipped in the packaged app; see [security.md](security.md). They don't apply to `npm start`.
 
 ## IPC API
@@ -50,13 +50,13 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 | `getPassword(id)` | `get-password` | Returns one password (reveal, edit). |
 | `copyPassword(id)` | `copy-password` | Copies one password in the main process, so it never reaches the UI. Cleared after 30 s, on lock, and on quit, only if the clipboard still holds it. On Windows, excluded from clipboard history and cloud clipboard. |
 | `savePassword(data)` | `save-password` | Adds an entry. `site`, `username`, `password` are required. |
-| `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`. |
+| `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`, and `passwordChangedAt` when the password changed. |
 | `deletePassword(id)` | `delete-password` | Removes one entry. |
 | `checkDuplicate(site, username)` | `check-duplicate` | Case-insensitive match on site + username. The returned entry has no `password`. |
 | `exportPasswords(masterPassword, filePassword)` | `export-passwords` | Checks the master password (`{ ok: false, error: 'wrongPassword' }` if wrong), then save dialog, writes a `.kys` export encrypted with `filePassword`, or the master password if omitted. `{ ok, count }`. |
 | `importPasswords()` | `import-passwords` | Open dialog. An old plain JSON export is merged right away (`{ ok, imported, skipped }`). An encrypted export stays in `main.js` and returns `{ needsPassword, fileName }`. Anything else: `{ error: 'notExportFile' }`. |
 | `importWithPassword(password)` | `import-with-password` | Decrypts the pending export and merges it (`{ ok, imported, skipped }`), or `{ ok: false, error: 'wrongPassword' }`. The file's contents never reach the UI. |
-| `getStats()` | `get-stats` | Totals by category, reused passwords, entries older than 90 days. |
+| `getStats()` | `get-stats` | Password health: `{ total, weak, reused, old, issues }`, where `issues` maps entry id → `['weak' \| 'reused' \| 'old']`. Weak uses `src/utils/passwordStrength.mjs` (the meter's rules), old means no password change in 90 days. Computed here because the UI has no passwords. |
 | `minimizeWindow()` / `maximizeWindow()` / `closeWindow()` | `*-window` (`send`) | Custom title bar controls. |
 
 Adding a capability means adding it in both `main.js` and `preload.js`. Keep the API narrow: expose specific operations, never a generic "write the whole file" call.
@@ -94,11 +94,12 @@ The file is encrypted (format v2, since 1.0.0). Details and reasoning in [securi
   "notes": "optional",
   "createdAt": "ISO date",
   "updatedAt": "ISO date, set on edit",
+  "passwordChangedAt": "ISO date, set when the password changes",
   "importedAt": "ISO date, set on import"
 }
 ```
 
-`category`, `notes`, `updatedAt`, `importedAt` are optional. Pre-1.0 entries without an `id` get one during setup.
+`category`, `notes`, `updatedAt`, `passwordChangedAt`, `importedAt` are optional. Pre-1.0 entries without an `id` get one during setup.
 
 How `vault.js` protects the file:
 
@@ -130,7 +131,7 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 - `src/components/RecoveryKit.jsx`: shows a new recovery code with Print / Save as PDF; continuing requires typing its last 4 characters. Rendered by `App.js` above everything else so an auto-lock can't hide an unsaved code.
 - `src/components/SecurityModal.jsx`: change master password, create a new recovery kit. Opened from the shield icon in the title bar (next to the lock icon).
 - `src/pages/HomePage.jsx`: add-password form, generator, duplicate warning.
-- `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, stats.
+- `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, and the health tiles (Weak / Reused / Old), which filter the list; cards show a badge per issue.
 - `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
 - Themes: `light`, `dark`, `pink`, `vaporwave`, `alpha-wolf`, cycled from the title bar. Saved in `localStorage` key `theme`.

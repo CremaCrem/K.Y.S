@@ -39,7 +39,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 ## Phase 4: Features
 
-- [ ] Health view: list the reused, old, and weak entries that `get-stats` already counts.
+- [x] Password health dashboard: Weak / Reused / Old tiles filter the list, with a badge on each affected entry and a tip on how to fix it.
 - [ ] Import Chrome / Edge / Firefox CSV exports.
 - [ ] Favorites and sorting.
 

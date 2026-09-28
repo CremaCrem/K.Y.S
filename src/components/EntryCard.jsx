@@ -6,7 +6,14 @@ import { useLanguage } from '../context/LanguageContext';
 
 // Entries arrive without their password. It's fetched only while revealed or
 // being edited, and copying happens in the main process (auto-cleared after 30 s).
-const EntryCard = ({ id, site, username, category, notes, compact = false, onDelete, onEdit }) => {
+const ISSUE_STYLES = {
+  weak: 'bg-red-500/15 text-red-500',
+  reused: 'bg-orange-500/15 text-orange-500',
+  old: 'bg-yellow-500/15 text-yellow-600',
+};
+const ISSUE_LABELS = { weak: 'weak', reused: 'reusedBadge', old: 'oldBadge' };
+
+const EntryCard = ({ id, site, username, category, notes, issues, compact = false, onDelete, onEdit }) => {
   const { t } = useLanguage();
   const [revealed, setRevealed] = useState(null);
   const [editPassword, setEditPassword] = useState('');
@@ -64,6 +71,16 @@ const EntryCard = ({ id, site, username, category, notes, compact = false, onDel
     setIsModalOpen(true);
   };
 
+  const issueBadges = issues?.length > 0 && (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {issues.map((issue) => (
+        <span key={issue} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${ISSUE_STYLES[issue]}`}>
+          {t(ISSUE_LABELS[issue])}
+        </span>
+      ))}
+    </div>
+  );
+
   const getCategoryColor = () => {
     const colors = {
       'Games': 'bg-amber-400',
@@ -97,6 +114,7 @@ const EntryCard = ({ id, site, username, category, notes, compact = false, onDel
               <div className="min-w-0">
                 <h3 className="font-medium text-text-color text-sm truncate">{site}</h3>
                 <p className="text-xs text-text-secondary truncate">{username}</p>
+                {issueBadges}
               </div>
             </div>
             {notes && <FaStickyNote className="text-button opacity-50" size={10} />}
@@ -171,6 +189,7 @@ const EntryCard = ({ id, site, username, category, notes, compact = false, onDel
             <div>
               <h3 className="font-medium text-text-color text-sm">{site}</h3>
               <p className="text-xs text-text-secondary">{getCategoryLabel()}</p>
+              {issueBadges}
             </div>
           </div>
 
