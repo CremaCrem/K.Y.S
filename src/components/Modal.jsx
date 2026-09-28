@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext';
 
 const Modal = ({ 
@@ -20,6 +20,7 @@ const Modal = ({
   const [newPassword, setNewPassword] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newNotes, setNewNotes] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const categories = [
     { value: 'Games', label: t('games') },
@@ -39,6 +40,7 @@ const Modal = ({
       setNewPassword(currentPassword || '');
       setNewCategory(currentCategory || '');
       setNewNotes(currentNotes || '');
+      setShowPassword(false);
     }
   }, [isOpen, currentSite, currentUsername, currentPassword, currentCategory, currentNotes]);
 
@@ -107,13 +109,22 @@ const Modal = ({
 
             <div>
               <label className="block text-sm font-medium text-text-color mb-1.5">{t('password')}</label>
-              <input
-                type="text"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full h-10 px-3 bg-surface border border-border-color rounded-xl text-text-color placeholder-text-secondary transition-all font-mono text-sm"
-                placeholder={t('enterPassword')}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full h-10 px-3 pr-10 bg-surface border border-border-color rounded-xl text-text-color placeholder-text-secondary transition-all font-mono text-sm"
+                  placeholder={t('enterPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-color transition-colors"
+                >
+                  {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                </button>
+              </div>
             </div>
 
             <div>

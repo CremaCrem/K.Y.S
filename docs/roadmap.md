@@ -35,7 +35,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [x] List view receives entries without passwords; reveal/copy fetch one password by id.
 - [x] Electron fuses in the packaged app (needs electron-builder 26); UI served from `app://` instead of `file://`; npm packages no longer shipped.
 - [x] Bundle fonts locally instead of loading them from Google Fonts.
-- [ ] Edit dialog hides the password behind a reveal toggle.
+- [x] Edit dialog hides the password behind a reveal toggle.
 
 ## Phase 4: Features
 

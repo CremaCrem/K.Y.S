@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 #### Changed
 - The password generator uses the operating system's secure random source instead of `Math.random`.
+- The edit dialog hides the password until you click the eye icon.
 - The password list no longer loads every password into the window; each one is fetched only when you reveal, copy, or edit it.
 - Updated Electron from 32 to 44. Electron 32 no longer received security fixes.
 - Import and export dialogs now open in your Downloads folder.
