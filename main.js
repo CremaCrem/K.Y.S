@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, powerMonitor, protocol, net } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, powerMonitor, protocol, net, clipboard, ClipboardItem } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -117,6 +117,11 @@ app.on('ready', async () => {
   createWindow();
   startAutoLock();
 });
+app.on('before-quit', (event) => {
+  if (copiedPassword === null) return;
+  event.preventDefault();
+  clearCopiedPassword().finally(() => app.quit());
+});
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -150,9 +155,44 @@ const AUTO_LOCK_IDLE_SECONDS = 5 * 60;
 const MIN_PASSWORD_LENGTH = 8;
 
 function lockVault() {
+  clearCopiedPassword();
   if (!vaultKey) return;
   vaultKey = null;
   if (mainWindow) mainWindow.webContents.send('vault-locked');
+}
+
+// Copied passwords are cleared after 30 s, on lock, and on quit, but only if
+// the clipboard still holds that password (never wipe something copied since).
+const CLIPBOARD_CLEAR_MS = 30 * 1000;
+let copiedPassword = null;
+let clipboardTimer = null;
+
+// On Windows these clipboard formats keep the copy out of clipboard history
+// (Win+V) and cloud clipboard sync. Other platforms don't need them.
+const WINDOWS_NO_HISTORY = {
+  'electron application/osclipboard;format="ExcludeClipboardContentFromMonitorProcessing"': new Blob([new Uint32Array([0])]),
+  'electron application/osclipboard;format="CanIncludeInClipboardHistory"': new Blob([new Uint32Array([0])]),
+  'electron application/osclipboard;format="CanUploadToCloudClipboard"': new Blob([new Uint32Array([0])]),
+};
+
+async function copySecret(text) {
+  if (process.platform === 'win32') {
+    try {
+      await clipboard.write([new ClipboardItem({ 'text/plain': text, ...WINDOWS_NO_HISTORY })]);
+      return;
+    } catch (err) {
+      console.error('Could not exclude the copy from clipboard history, copying normally:', err);
+    }
+  }
+  await clipboard.writeText(text);
+}
+
+async function clearCopiedPassword() {
+  clearTimeout(clipboardTimer);
+  if (copiedPassword === null) return;
+  const stillThere = (await clipboard.readText()) === copiedPassword;
+  copiedPassword = null;
+  if (stillThere) clipboard.clear();
 }
 
 function startAutoLock() {
@@ -234,8 +274,28 @@ function generateId() {
 }
 
 // Get all passwords
+// The UI gets entries without passwords. It asks for one password at a time
+// (reveal, edit), and copying happens here so the password never reaches it.
+const withoutPassword = ({ password, ...entry }) => entry;
+
+async function findPassword(id) {
+  const entry = (await readPasswords()).find(p => p.id === id);
+  if (!entry) throw new Error('Password entry not found');
+  return entry.password;
+}
+
 ipcMain.handle('get-passwords', async () => {
-  return await readPasswords();
+  return (await readPasswords()).map(withoutPassword);
+});
+
+ipcMain.handle('get-password', (event, id) => findPassword(id));
+
+ipcMain.handle('copy-password', async (event, id) => {
+  const password = await findPassword(id);
+  clearTimeout(clipboardTimer);
+  await copySecret(password);
+  copiedPassword = password;
+  clipboardTimer = setTimeout(clearCopiedPassword, CLIPBOARD_CLEAR_MS);
 });
 
 // Check for duplicates
@@ -245,7 +305,7 @@ ipcMain.handle('check-duplicate', async (event, { site, username }) => {
     p.site?.toLowerCase() === site?.toLowerCase() && 
     p.username?.toLowerCase() === username?.toLowerCase()
   );
-  return { isDuplicate: !!duplicate, existing: duplicate };
+  return { isDuplicate: !!duplicate, existing: duplicate && withoutPassword(duplicate) };
 });
 
 // Save a new password

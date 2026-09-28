@@ -6,9 +6,11 @@ All notable changes to this project will be documented in this file.
 
 #### Added
 - Password generator options: length (12–32, default 20) and symbols on/off, remembered between sessions.
+- Copied passwords are cleared from the clipboard after 30 seconds, when KYS locks, and when it closes (unless you've copied something else since). On Windows they're kept out of clipboard history (Win+V) and cloud clipboard.
 
 #### Changed
 - The password generator uses the operating system's secure random source instead of `Math.random`.
+- The password list no longer loads every password into the window; each one is fetched only when you reveal, copy, or edit it.
 - Updated Electron from 32 to 44. Electron 32 no longer received security fixes.
 - Import and export dialogs now open in your Downloads folder.
 - Smaller, locked-down installer: npm packages are no longer bundled into the app (211 MB → 3 MB of app code), Electron fuses block running KYS as plain Node or attaching a debugger, and the UI loads from a private `app://` protocol instead of `file://`.

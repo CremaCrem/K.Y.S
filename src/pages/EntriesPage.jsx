@@ -48,7 +48,9 @@ const EntriesPage = ({ onBack }) => {
   const handleEdit = async (id, updatedEntry) => {
     try {
       await window.electron.updatePassword(id, updatedEntry);
-      setPasswords(prev => prev.map(p => p.id === id ? { ...p, ...updatedEntry } : p));
+      // The list never holds passwords; only the other fields are merged back.
+      const { password, ...shown } = updatedEntry;
+      setPasswords(prev => prev.map(p => p.id === id ? { ...p, ...shown } : p));
       setShowSuccess(true);
     } catch (error) {
       console.error('Failed to update:', error);
@@ -265,7 +267,6 @@ const EntriesPage = ({ onBack }) => {
                         site={getSiteName(entry)}
                         username={entry.username} 
                         category={entry.category} 
-                        password={entry.password}
                         notes={entry.notes}
                         compact={true}
                         onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 
@@ -287,7 +288,6 @@ const EntriesPage = ({ onBack }) => {
                 site={getSiteName(entry)}
                 username={entry.username} 
                 category={entry.category} 
-                password={entry.password}
                 notes={entry.notes}
                 compact={false}
                 onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 

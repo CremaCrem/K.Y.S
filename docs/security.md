@@ -18,8 +18,8 @@ An honest description of what KYS protects today. Update this file whenever that
 | Shipped code | ✅ Only the app's own files (~3 MB). No npm packages are bundled into the installer. |
 | Exports | ⚠️ Plain JSON, behind a warning dialog. Treat export files like the passwords themselves. |
 | Password generator | ✅ `crypto.getRandomValues` with rejection sampling (no bias); 12–32 characters, always includes each enabled character type. |
-| Clipboard | ⚠️ Copied passwords are never cleared automatically. |
-| Unlocked renderer | ⚠️ While unlocked, the UI holds decrypted entries in memory. |
+| Clipboard | ✅ Copied in the main process and cleared after 30 s, on lock, and on quit (only if it still holds that password). On Windows it's marked to stay out of clipboard history (Win+V) and cloud clipboard. |
+| Unlocked renderer | ⚠️ While unlocked, the UI holds site names, usernames, and notes. Passwords are fetched one at a time only when revealed or edited. |
 
 ## How the encryption works
 

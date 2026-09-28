@@ -4,9 +4,12 @@ import { HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2';
 import Modal from './Modal';
 import { useLanguage } from '../context/LanguageContext';
 
-const EntryCard = ({ id, site, username, category, password, notes, compact = false, onDelete, onEdit }) => {
+// Entries arrive without their password. It's fetched only while revealed or
+// being edited, and copying happens in the main process (auto-cleared after 30 s).
+const EntryCard = ({ id, site, username, category, notes, compact = false, onDelete, onEdit }) => {
   const { t } = useLanguage();
-  const [showPassword, setShowPassword] = useState(false);
+  const [revealed, setRevealed] = useState(null);
+  const [editPassword, setEditPassword] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
@@ -22,10 +25,37 @@ const EntryCard = ({ id, site, username, category, password, notes, compact = fa
     }
   };
 
-  const handleEditClick = (e) => {
+  const copyPassword = async (e) => {
     e?.stopPropagation();
+    try {
+      await window.electron.copyPassword(id);
+      setCopiedField('password');
+      setTimeout(() => setCopiedField(null), 1500);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const toggleReveal = async (e) => {
+    e?.stopPropagation();
+    setRevealed(revealed === null ? await window.electron.getPassword(id) : null);
+  };
+
+  const handleEditClick = async (e) => {
+    e?.stopPropagation();
+    setEditPassword(await window.electron.getPassword(id));
     setIsEditMode(true);
     setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditPassword('');
+  };
+
+  const handleEditConfirm = (updatedEntry) => {
+    setRevealed(null);
+    onEdit(updatedEntry);
   };
 
   const handleDeleteClick = (e) => {
@@ -75,17 +105,17 @@ const EntryCard = ({ id, site, username, category, password, notes, compact = fa
           {/* Password Row */}
           <div className="flex items-center justify-between bg-surface/50 rounded-lg px-2 py-1.5">
             <span className="text-xs text-text-color font-mono truncate flex-1">
-              {showPassword ? password : '••••••••'}
+              {revealed ?? '••••••••'}
             </span>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
-                onClick={(e) => { e.stopPropagation(); setShowPassword(!showPassword); }}
+                onClick={toggleReveal}
                 className="w-6 h-6 rounded flex items-center justify-center text-text-secondary hover:text-text-color hover:bg-border-color/50 transition-colors"
               >
-                {showPassword ? <FaEyeSlash size={10} /> : <FaEye size={10} />}
+                {revealed !== null ? <FaEyeSlash size={10} /> : <FaEye size={10} />}
               </button>
               <button
-                onClick={(e) => copyToClipboard(password, 'password', e)}
+                onClick={copyPassword}
                 className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
                   copiedField === 'password' ? 'bg-green-500 text-white' : 'text-text-secondary hover:text-text-color hover:bg-border-color/50'
                 }`}
@@ -114,13 +144,13 @@ const EntryCard = ({ id, site, username, category, password, notes, compact = fa
 
         <Modal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onEditConfirm={onEdit}
+          onClose={closeModal}
+          onEditConfirm={handleEditConfirm}
           onDeleteConfirm={onDelete}
           isEditMode={isEditMode}
           currentSite={site}     
           currentUsername={username}  
-          currentPassword={password}   
+          currentPassword={editPassword}   
           currentCategory={category}
           currentNotes={notes}
         />
@@ -190,18 +220,18 @@ const EntryCard = ({ id, site, username, category, password, notes, compact = fa
             <div className="min-w-0 flex-1">
               <span className="text-[10px] uppercase tracking-wide text-text-secondary font-medium">{t('password')}</span>
               <p className="text-sm text-text-color font-mono">
-                {showPassword ? password : '••••••••••'}
+                {revealed ?? '••••••••••'}
               </p>
             </div>
             <div className="flex items-center gap-0.5 ml-2 flex-shrink-0">
               <button
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={toggleReveal}
                 className="w-7 h-7 rounded flex items-center justify-center text-text-secondary hover:text-text-color hover:bg-border-color/50 transition-colors"
               >
-                {showPassword ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
+                {revealed !== null ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
               </button>
               <button
-                onClick={(e) => copyToClipboard(password, 'password', e)}
+                onClick={copyPassword}
                 className={`w-7 h-7 rounded flex items-center justify-center transition-all ${
                   copiedField === 'password' ? 'bg-green-500 text-white' : 'text-text-secondary hover:text-text-color hover:bg-border-color/50'
                 }`}
@@ -223,13 +253,13 @@ const EntryCard = ({ id, site, username, category, password, notes, compact = fa
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onEditConfirm={onEdit}
+        onClose={closeModal}
+        onEditConfirm={handleEditConfirm}
         onDeleteConfirm={onDelete}
         isEditMode={isEditMode}
         currentSite={site}     
         currentUsername={username}  
-        currentPassword={password}   
+        currentPassword={editPassword}   
         currentCategory={category}
         currentNotes={notes}
       />

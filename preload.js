@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Password operations
   getPasswords: () => ipcRenderer.invoke('get-passwords'),
+  getPassword: (id) => ipcRenderer.invoke('get-password', id),
+  copyPassword: (id) => ipcRenderer.invoke('copy-password', id),
   savePassword: (data) => ipcRenderer.invoke('save-password', data),
   updatePassword: (id, updates) => ipcRenderer.invoke('update-password', { id, updates }),
   deletePassword: (id) => ipcRenderer.invoke('delete-password', id),

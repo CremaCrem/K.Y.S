@@ -43,11 +43,13 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 
 | `window.electron.*` | Channel | Does |
 |---|---|---|
-| `getPasswords()` | `get-passwords` | Returns all entries. |
+| `getPasswords()` | `get-passwords` | Returns all entries **without** their `password` field. |
+| `getPassword(id)` | `get-password` | Returns one password (reveal, edit). |
+| `copyPassword(id)` | `copy-password` | Copies one password in the main process, so it never reaches the UI. Cleared after 30 s, on lock, and on quit, only if the clipboard still holds it. On Windows, excluded from clipboard history and cloud clipboard. |
 | `savePassword(data)` | `save-password` | Adds an entry. `site`, `username`, `password` are required. |
 | `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`. |
 | `deletePassword(id)` | `delete-password` | Removes one entry. |
-| `checkDuplicate(site, username)` | `check-duplicate` | Case-insensitive match on site + username. |
+| `checkDuplicate(site, username)` | `check-duplicate` | Case-insensitive match on site + username. The returned entry has no `password`. |
 | `exportPasswords()` | `export-passwords` | Warns that the file is unencrypted, then save dialog, writes entries (without `id`) as JSON. |
 | `importPasswords()` | `import-passwords` | Open dialog, merges a JSON array, skips duplicates. |
 | `getStats()` | `get-stats` | Totals by category, reused passwords, entries older than 90 days. |
