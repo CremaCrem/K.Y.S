@@ -214,12 +214,6 @@ ipcMain.handle('delete-password', async (event, id) => {
   return { success: true, message: 'Password deleted successfully!' };
 });
 
-// Bulk update
-ipcMain.handle('update-passwords', async (event, updatedPasswords) => {
-  await writePasswords(updatedPasswords);
-  return { success: true, message: 'Passwords updated successfully!' };
-});
-
 // Export passwords to JSON file
 ipcMain.handle('export-passwords', async () => {
   const passwords = await readPasswords();
