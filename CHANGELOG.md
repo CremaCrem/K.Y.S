@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [1.1.0] - 2026-09-28
+
+Security hardening.
+
 #### Added
 - Password generator options: length (12–32, default 20) and symbols on/off, remembered between sessions.
 - Copied passwords are cleared from the clipboard after 30 seconds, when KYS locks, and when it closes (unless you've copied something else since). On Windows they're kept out of clipboard history (Win+V) and cloud clipboard.

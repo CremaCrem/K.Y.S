@@ -26,7 +26,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [ ] "Remember on this computer": unlock with the Windows login (Electron `safeStorage`). Convenience, not recovery.
 - [ ] Encrypted exports.
 
-## Phase 3: Hardening
+## Phase 3: Hardening ✅ v1.1.0
 
 - [x] Upgrade Electron to a supported version (32 → 44). Keep it within the latest 3 majors from now on.
 - [x] Generator uses `crypto.getRandomValues`, with length and character-set options.
