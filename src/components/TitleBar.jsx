@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiSun, FiMoon } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLock, FiShield } from 'react-icons/fi';
 import { HiChevronDown } from 'react-icons/hi2';
 import { FiMinus, FiMaximize2, FiX } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,8 +10,9 @@ const languages = [
   { code: 'fil', name: 'Filipino', flag: '🇵🇭' },
 ];
 
-const TitleBar = ({ toggleTheme, currentTheme }) => {
-  const { language, changeLanguage } = useLanguage();
+// onLock / onSecurity are only passed while the vault is unlocked.
+const TitleBar = ({ toggleTheme, currentTheme, onLock, onSecurity }) => {
+  const { t, language, changeLanguage } = useLanguage();
   const [showLangMenu, setShowLangMenu] = useState(false);
 
   const currentLang = languages.find(l => l.code === language) || languages[0];
@@ -34,6 +35,25 @@ const TitleBar = ({ toggleTheme, currentTheme }) => {
 
       {/* Right - Controls */}
       <div className="flex items-stretch">
+        {onSecurity && (
+          <button
+            onClick={onSecurity}
+            className="w-10 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
+            title={t('security')}
+          >
+            <FiShield size={14} />
+          </button>
+        )}
+        {onLock && (
+          <button
+            onClick={onLock}
+            className="w-10 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors no-drag"
+            title={t('lock')}
+          >
+            <FiLock size={14} />
+          </button>
+        )}
+
         {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}

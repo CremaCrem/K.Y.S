@@ -6,6 +6,20 @@ contextBridge.exposeInMainWorld('electron', {
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),
 
+  // Master password and recovery kit
+  getVaultStatus: () => ipcRenderer.invoke('vault-status'),
+  setupVault: (password) => ipcRenderer.invoke('setup-vault', password),
+  unlock: (password) => ipcRenderer.invoke('unlock', password),
+  recover: (recoveryCode, newPassword) => ipcRenderer.invoke('recover', { recoveryCode, newPassword }),
+  lock: () => ipcRenderer.invoke('lock'),
+  changePassword: (currentPassword, newPassword) => ipcRenderer.invoke('change-password', { currentPassword, newPassword }),
+  newRecoveryCode: () => ipcRenderer.invoke('new-recovery-code'),
+  onVaultLocked: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on('vault-locked', listener);
+    return () => ipcRenderer.removeListener('vault-locked', listener);
+  },
+
   // Password operations
   getPasswords: () => ipcRenderer.invoke('get-passwords'),
   savePassword: (data) => ipcRenderer.invoke('save-password', data),

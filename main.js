@@ -1,8 +1,17 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, powerMonitor } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
-const { readVault, writeVault } = require('./vault');
+const {
+  vaultStatus,
+  createVault,
+  unlockWithPassword,
+  unlockWithRecoveryCode,
+  setPassword,
+  newRecoveryCode,
+  readVault,
+  writeVault,
+} = require('./vault');
 
 let mainWindow;
 
@@ -67,7 +76,10 @@ function createWindow() {
     console.error('Failed to load URL:', err);
   });
 
-  mainWindow.on('closed', () => (mainWindow = null));
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+    vaultKey = null;
+  });
   
   if (isDev) {
     mainWindow.webContents.openDevTools();
@@ -76,12 +88,8 @@ function createWindow() {
 
 app.on('ready', async () => {
   await migrateOldPasswords();
-  try {
-    await readPasswords();
-  } catch (err) {
-    dialog.showErrorBox('KYS could not open your passwords', err.message);
-  }
   createWindow();
+  startAutoLock();
 });
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -109,8 +117,90 @@ ipcMain.on('close-window', () => {
   if (mainWindow) mainWindow.close();
 });
 
-const readPasswords = () => readVault(getPasswordsFilePath());
-const writePasswords = (passwords) => writeVault(getPasswordsFilePath(), passwords);
+// The vault key lives only here, in memory, while the vault is unlocked.
+// The UI never receives it.
+let vaultKey = null;
+const AUTO_LOCK_IDLE_SECONDS = 5 * 60;
+const MIN_PASSWORD_LENGTH = 8;
+
+function lockVault() {
+  if (!vaultKey) return;
+  vaultKey = null;
+  if (mainWindow) mainWindow.webContents.send('vault-locked');
+}
+
+function startAutoLock() {
+  powerMonitor.on('lock-screen', lockVault);
+  powerMonitor.on('suspend', lockVault);
+  setInterval(() => {
+    if (powerMonitor.getSystemIdleTime() >= AUTO_LOCK_IDLE_SECONDS) lockVault();
+  }, 15 * 1000);
+}
+
+function requireUnlocked() {
+  if (!vaultKey) throw new Error('The vault is locked.');
+  return vaultKey;
+}
+
+function requireNewPassword(password) {
+  if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(`The master password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+  }
+}
+
+const readPasswords = () => readVault(getPasswordsFilePath(), requireUnlocked());
+const writePasswords = (passwords) => writeVault(getPasswordsFilePath(), requireUnlocked(), passwords);
+
+// 'setup' (no vault yet, or a pre-1.0 plaintext one), 'locked', 'unlocked',
+// or 'error' (unreadable file; the UI must not offer setup, which would overwrite it).
+ipcMain.handle('vault-status', async () => {
+  try {
+    const status = await vaultStatus(getPasswordsFilePath());
+    if (status !== 'encrypted') return { status: 'setup', hasExistingPasswords: status === 'plaintext' };
+    return { status: vaultKey ? 'unlocked' : 'locked' };
+  } catch (err) {
+    return { status: 'error', message: err.message };
+  }
+});
+
+ipcMain.handle('setup-vault', async (event, password) => {
+  requireNewPassword(password);
+  const { key, recoveryCode } = await createVault(getPasswordsFilePath(), password);
+  vaultKey = key;
+  return { recoveryCode };
+});
+
+ipcMain.handle('unlock', async (event, password) => {
+  const key = await unlockWithPassword(getPasswordsFilePath(), password);
+  if (!key) return { ok: false };
+  vaultKey = key;
+  return { ok: true };
+});
+
+// Forgot password: the recovery code unlocks the vault and sets a new password.
+ipcMain.handle('recover', async (event, { recoveryCode, newPassword }) => {
+  requireNewPassword(newPassword);
+  const key = await unlockWithRecoveryCode(getPasswordsFilePath(), recoveryCode);
+  if (!key) return { ok: false };
+  await setPassword(getPasswordsFilePath(), key, newPassword);
+  vaultKey = key;
+  return { ok: true };
+});
+
+ipcMain.handle('lock', () => lockVault());
+
+ipcMain.handle('change-password', async (event, { currentPassword, newPassword }) => {
+  requireUnlocked();
+  requireNewPassword(newPassword);
+  const key = await unlockWithPassword(getPasswordsFilePath(), currentPassword);
+  if (!key) return { ok: false };
+  await setPassword(getPasswordsFilePath(), key, newPassword);
+  return { ok: true };
+});
+
+ipcMain.handle('new-recovery-code', async () => {
+  return { recoveryCode: await newRecoveryCode(getPasswordsFilePath(), requireUnlocked()) };
+});
 
 // Generate unique ID for entries
 function generateId() {
@@ -190,6 +280,18 @@ ipcMain.handle('delete-password', async (event, id) => {
 // Export passwords to JSON file
 ipcMain.handle('export-passwords', async () => {
   const passwords = await readPasswords();
+
+  const { response } = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Cancel', 'Export anyway'],
+    defaultId: 0,
+    cancelId: 0,
+    message: 'The exported file is not encrypted',
+    detail: 'Anyone who opens it can read all your passwords. Keep it somewhere safe and delete it when you no longer need it.',
+  });
+  if (response !== 1) {
+    return { success: false, message: 'Export cancelled' };
+  }
   
   const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
     title: 'Export Passwords',

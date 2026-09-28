@@ -9,16 +9,22 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 - [x] Keep `passwords.json.bak` (the previous version) on every write.
 - [x] Automated Windows builds and GitHub Releases on version tags.
 
-## Phase 2: Encrypt the vault (v0.3.0 or v1.0.0)
+## Phase 2: Encrypt the vault ✅ v1.0.0
 
-- [ ] Master password on first run, unlock screen afterwards.
-- [ ] `scrypt` key derivation + `aes-256-gcm` encryption (Node `crypto`, no new dependency). File stores `{ version, salt, iv, tag, data }`.
-- [ ] Key lives only in the main process.
-- [ ] Migrate the existing plaintext vault, then remove the plaintext file.
-- [ ] Auto-lock after idle time and on minimize.
-- [ ] Encrypted exports (plaintext export behind a warning).
-- [ ] UI states clearly that a forgotten master password cannot be recovered.
-- [ ] Runnable check: round-trip works, wrong password fails.
+- [x] Mandatory master password on first run, unlock screen afterwards.
+- [x] `scrypt` key derivation + AES-256-GCM (Node `crypto`, no new dependency).
+- [x] Recovery kit: a code that also unlocks the vault, confirmed at setup by typing its last 4 characters. "Forgot password?" uses it to set a new password.
+- [x] Change master password; create a new recovery kit.
+- [x] Key lives only in the main process.
+- [x] Migrate the existing plaintext vault and delete the plaintext backup.
+- [x] Auto-lock after 5 minutes idle, on screen lock, and on sleep.
+- [x] Warning before plaintext export.
+- [x] Tests: round-trip, wrong password / code, recovery, tampering.
+
+### Later
+
+- [ ] "Remember on this computer": unlock with the Windows login (Electron `safeStorage`). Convenience, not recovery.
+- [ ] Encrypted exports.
 
 ## Phase 3: Hardening
 
@@ -36,4 +42,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 ## Not planned
 
-Cloud sync, browser extension, mobile app, TOTP storage (puts both login factors in one file).
+- Cloud sync, browser extension, mobile app. Each needs a server or a separate app.
+- TOTP storage: puts both login factors in one file.
+- Password hints: stored unencrypted and usually give the password away.
+- Any hidden or developer-held way into users' vaults. See [security.md](security.md#the-recovery-kit-and-helping-family).

@@ -163,3 +163,10 @@ html, body {
 input:focus, select:focus { outline: none; box-shadow: 0 0 0 3px rgba(var(--button), 0.3); }
 button { transition: all 0.2s ease; }
 button:active { transform: scale(0.97); }
+
+/* Printing the recovery kit: only .print-area is printed, in black on white. */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; color: #000 !important; }
+  .print-area { position: absolute; inset: 0; padding: 2rem; }
+}
