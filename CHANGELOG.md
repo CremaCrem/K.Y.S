@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [1.2.0] - 2026-09-28
+
 #### Added
 - "Remember on this computer" (Security settings, off by default): KYS opens without asking for your master password, and the lock screen gets a one-click unlock. Only your Windows account on that computer can use it.
 
