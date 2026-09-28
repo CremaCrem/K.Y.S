@@ -1,0 +1,26 @@
+<!-- @dsCard group="Components" viewport="700x520" name="Vault" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../ds-fallback.js"></script>
+<style>body{padding:20px;background:var(--kys-bg)}.r{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c{display:flex;flex-direction:column;gap:16px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+window.KYS_READY.then(NS => {
+const { CategoryIcon, CATEGORIES, FilterChip, PasswordRow, SecretField, StatCard } = NS;
+function Demo(){const [f,setF]=React.useState('all');return <div className="c">
+<div className="r">{Object.keys(CATEGORIES||{}).map(k=><CategoryIcon key={k} category={k} size={40}/>)}</div>
+<div className="r"><FilterChip label="All" icon="apps" color="var(--kys-neutral-700)" selected={f==='all'} onClick={()=>setF('all')}/><FilterChip label="Favorites" icon="star" color="var(--kys-favorite)" selected={f==='fav'} onClick={()=>setF('fav')}/><FilterChip label="Wi‑Fi" icon="wifi" color="var(--kys-cat-wifi)" selected={f==='wifi'} onClick={()=>setF('wifi')}/><FilterChip label="Servers & SSH" icon="dns" color="var(--kys-cat-servers)" selected={f==='srv'} onClick={()=>setF('srv')}/><FilterChip label="API keys" icon="key" color="var(--kys-cat-apikeys)" selected={f==='api'} onClick={()=>setF('api')}/></div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 280px',gap:16}}>
+<div style={{background:'var(--kys-surface)',borderRadius:24,padding:8}}>
+<PasswordRow name="GitHub" username="amoreno" category="dev" logo="github" brandColor="#181717" favorite selected/>
+<PasswordRow name="Home Wi‑Fi" username="Moreno_5G" category="wifi"/>
+<PasswordRow name="Prod server" username="deploy@10.0.4.12" category="servers"/>
+<PasswordRow name="Netflix" username="alex@example.com" category="streaming" logo="netflix" brandColor="#E50914" risk="Reused on Amazon"/>
+</div>
+<div className="c" style={{gap:10}}><SecretField label="Username" value="amoreno"/><SecretField label="Password" value="gh_Rk4!zQ7mW2nPx" secret/><div className="r" style={{flexWrap:'nowrap'}}><StatCard value={12} label="Total"/><StatCard value={2} label="Weak" tone="danger"/></div></div>
+</div></div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+});
+</script></body></html>

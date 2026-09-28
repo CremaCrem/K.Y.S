@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Changed
+- New look, following the K.Y.S design system (see `docs/design-system/`). Your passwords are a list with a details panel next to it: select an entry to see, reveal, and copy its username and password, read its notes, and get a tip for each health issue. A rail on the left switches between Vault, Add, and Security, and locks KYS.
+- Editing an entry uses the full Add Password form, with the generator and strength meter. You can now clear an entry's category or notes.
+- Filter chips show only the categories you have passwords in.
+- Copying, adding, saving, and deleting show a short message at the bottom instead of a full-screen checkmark.
+- The theme button switches between light and dark. Pink, Vaporwave, and Alpha Wolf are now secret themes: find the magic word to unlock each one. If you were already using one, you keep it.
+
+#### Added
+- More categories: Web, Wi‑Fi, Dev tools, Servers & SSH, API keys, Licenses, Crypto, Identity, Smart home, Recovery codes, and Other.
+
+#### Removed
+- The grid view of the passwords page.
+
 ### [1.4.0] - 2026-09-28
 
 #### Added

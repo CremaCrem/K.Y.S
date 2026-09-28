@@ -1,0 +1,45 @@
+<!-- @dsCard group="Desktop app" viewport="1280x800" name="Vault" subtitle="Click-through: vault, filters, detail, add password" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>K.Y.S — Desktop</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../ds-fallback.js"></script>
+<script src="data.js"></script>
+<style>html,body,#root{height:100%}</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel" src="VaultScreen.jsx"></script>
+<script type="text/babel" src="AddPasswordScreen.jsx"></script>
+<script type="text/babel">
+window.KYS_READY.then(NS => {
+  const { TitleBar, NavRail, Toast, Icon } = NS;
+  function App() {
+    const [view, setView] = React.useState('vault');
+    const [items, setItems] = React.useState(window.KYS_DATA);
+    const [dark, setDark] = React.useState(false);
+    const [msg, setMsg] = React.useState('');
+    const t = React.useRef();
+    const toast = m => { clearTimeout(t.current); setMsg(m); t.current = setTimeout(() => setMsg(''), 2000); };
+    return (
+      <div data-theme={dark ? 'dark' : undefined} style={{ height: '100%', minHeight: 640, display: 'flex', flexDirection: 'column', background: 'var(--kys-bg)', color: 'var(--kys-text)' }}>
+        <TitleBar dark={dark} onToggleTheme={() => setDark(!dark)} onLock={() => toast('Vault locked')} />
+        <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+          <NavRail active={view === 'add' ? 'vault' : view} onChange={setView}
+            items={[{ id: 'vault', label: 'Vault', icon: 'shield_lock' }, { id: 'add', label: 'Add', icon: 'add_circle' }, { id: 'settings', label: 'Settings', icon: 'settings' }]}
+            footer={<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: 'var(--kys-text-muted)', fontSize: 12, fontWeight: 500 }}><Icon name="help" />Help</div>} />
+          {view === 'add'
+            ? <AddPasswordScreen onBack={() => setView('vault')} onSave={it => { setItems([{ id: Date.now(), url: '', updated: 'Just now', ts: 99, ...it }, ...items]); setView('vault'); toast('Password added'); }} />
+            : view === 'settings'
+              ? <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--kys-text-muted)' }}>Settings is not part of this kit.</div>
+              : <VaultScreen items={items} setItems={setItems} onAdd={() => setView('add')} toast={toast} />}
+        </div>
+        {msg && <Toast message={msg} style={{ position: 'fixed', left: '50%', bottom: 24, transform: 'translateX(-50%)' }} />}
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+});
+</script>
+</body></html>

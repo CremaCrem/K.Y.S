@@ -62,7 +62,7 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 | `getPasswords()` | `get-passwords` | Returns all entries **without** their `password` field. |
 | `getPassword(id)` | `get-password` | Returns one password (reveal, edit). |
 | `copyPassword(id)` | `copy-password` | Copies one password in the main process, so it never reaches the UI. Cleared after 30 s, on lock, and on quit, only if the clipboard still holds it. On Windows, excluded from clipboard history and cloud clipboard. |
-| `savePassword(data)` | `save-password` | Adds an entry. `site`, `username`, `password` are required. |
+| `savePassword(data)` | `save-password` | Adds an entry, returns `{ success, id }`. `site`, `username`, `password` are required. |
 | `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`, and `passwordChangedAt` when the password changed. |
 | `deletePassword(id)` | `delete-password` | Removes one entry. |
 | `setFavorite(id, favorite)` | `set-favorite` | Stars or unstars an entry. Not an edit: `updatedAt` and `passwordChangedAt` stay as they are. |
@@ -146,15 +146,19 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 
 ## UI
 
-- Navigation is plain state in `App.js` (`home` ↔ `entries`), no router.
-- `App.js` asks `getVaultStatus()` on start and on every `vault-locked` event. Until the vault is unlocked, only `LockScreen` renders.
+The look follows the [K.Y.S design system](design-system/README.md).
+
+- Navigation is plain state in `App.js` (`vault` ↔ `form`), no router. While unlocked, a nav rail on the left has Vault, Add, Security (opens the Security dialog), and Lock.
+- `App.js` asks `getVaultStatus()` on start and on every `vault-locked` event. Until the vault is unlocked, only `LockScreen` renders. It also shows the toast ("Password copied", "Item deleted"...) for 2 seconds.
 - `src/pages/ProfilePicker.jsx`: "Who's using KYS?" cards and the create-profile form (name + master password). `src/components/ProfileAvatar.jsx`: initial on a color that stays the same per profile.
 - `src/pages/LockScreen.jsx`: the picker (status `pick`), setup, unlock, and "Forgot password?" recovery, with the profile's name and a "Switch profile" link. The title bar shows whose profile is open.
 - `src/components/RecoveryKit.jsx`: shows a new recovery code with Print / Save as PDF; continuing requires typing its last 4 characters. Rendered by `App.js` above everything else so an auto-lock can't hide an unsaved code.
-- `src/components/SecurityModal.jsx`: profile name, change master password, "Remember on this computer" (turning it on needs confirming a warning), new recovery kit, delete profile. Opened from the shield icon in the title bar (next to the lock icon).
-- `src/pages/HomePage.jsx`: add-password form, generator, duplicate warning.
-- `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, and the health tiles (Weak / Reused / Old), which filter the list; cards show a badge per issue. Favorites are listed first; the star button filters to favorites; the sort (name, recently added, recently changed) is saved in `localStorage` key `sortBy`.
-- `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame.
+- `src/components/SecurityModal.jsx`: profile name, change master password, "Remember on this computer" (turning it on needs confirming a warning), new recovery kit, delete profile.
+- `src/pages/VaultPage.jsx`: search, import/export, the health tiles (Weak / Reused / Old, which filter the list), category filter chips (only categories that have entries), the list, and a detail panel for the selected entry: reveal/copy, notes, a tip per health issue, edit, favorite, delete. Favorites are listed first; the sort (name, recently added, recently changed) is saved in `localStorage` key `sortBy`.
+- `src/pages/PasswordForm.jsx`: add or edit an entry, with the generator (length and symbols saved in `localStorage`), strength meter, and duplicate warning (new entries only).
+- `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame (Escape closes it).
+- `src/components/ui.jsx`: the design system's components (Button, TextField, PasswordRow, Alert...) and the category list. Entries store the category's `value` (`Email`, `Bank`, `WiFi`...), so renaming a label never touches vault data.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
-- Themes: `light`, `dark`, `pink`, `vaporwave`, `alpha-wolf`, cycled from the title bar. Saved in `localStorage` key `theme`.
-- Styling: Tailwind CSS plus `src/App.css`. Fonts (Inter, Montserrat) are bundled from `src/fonts/`; don't load anything from a CDN, the CSP in `public/index.html` blocks it.
+- Theme: light or dark, from the title bar. Saved in `localStorage` key `theme` and applied as `data-theme` on `<html>`.
+- Hidden themes (`pink`, `vaporwave`, `alpha-wolf`): easter eggs, unlocked by typing a secret into the vault search (`SECRET_THEMES` in `App.js`). Unlocked ones join the title-bar theme cycle (its icon becomes a palette) and are saved in `localStorage` key `unlockedThemes`. Anyone already using one from an older version keeps it. Their colors are token overrides at the end of the theme section in `src/index.css`; Alpha Wolf's wallpaper is `src/images/awooooo.jpg`.
+- Styling: design tokens (`--kys-*` CSS variables) in `src/index.css`, used through Tailwind (`tailwind.config.js` maps its colors to them) and inline styles. Fonts (Roboto Flex, Roboto Mono, Montserrat) and the icon font (a Material Symbols subset, rebuilt by `scripts/fetch-icons.sh`) are bundled from `src/fonts/`; don't load anything from a CDN, the CSP in `public/index.html` blocks it.

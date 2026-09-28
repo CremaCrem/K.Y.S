@@ -1,0 +1,26 @@
+:root {
+  --kys-font-sans: "Roboto Flex", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kys-font-mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kys-font-wordmark: "Montserrat", "Roboto Flex", sans-serif;
+  --kys-font-icon: "Material Symbols Rounded";
+
+  --kys-text-wordmark: 44px;
+  --kys-text-display: 28px;
+  --kys-text-title-lg: 22px;
+  --kys-text-title: 18px;
+  --kys-text-body-lg: 16px;
+  --kys-text-body: 14px;
+  --kys-text-label: 13px;
+  --kys-text-caption: 12px;
+
+  --kys-weight-regular: 400;
+  --kys-weight-medium: 500;
+  --kys-weight-semibold: 600;
+  --kys-weight-bold: 700;
+  --kys-weight-heavy: 800;
+
+  --kys-leading-tight: 1.15;
+  --kys-leading-normal: 1.4;
+  --kys-leading-relaxed: 1.55;
+  --kys-tracking-tight: -0.02em;
+}

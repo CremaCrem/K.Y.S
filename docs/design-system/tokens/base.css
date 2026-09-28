@@ -1,0 +1,13 @@
+body { margin: 0; font-family: var(--kys-font-sans); color: var(--kys-text); background: var(--kys-bg); -webkit-font-smoothing: antialiased; }
+a { color: var(--kys-primary-text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.kys-icon { font-family: var(--kys-font-icon); font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; user-select: none; }
+.kys-press { transition: filter var(--kys-dur-fast) var(--kys-ease), background-color var(--kys-dur-fast) var(--kys-ease), transform var(--kys-dur-fast) var(--kys-ease); }
+.kys-press:hover:not(:disabled) { filter: brightness(0.95); }
+.kys-press:active:not(:disabled) { transform: scale(0.98); }
+.kys-ghost { transition: background-color var(--kys-dur-fast) var(--kys-ease); }
+.kys-ghost:hover:not(:disabled) { background-color: var(--kys-state-hover) !important; }
+.kys-field { transition: border-color var(--kys-dur-fast), box-shadow var(--kys-dur-fast); }
+.kys-field:focus-within { border-color: var(--kys-primary) !important; box-shadow: 0 0 0 3px var(--kys-focus-ring); }
+.kys-field input::placeholder { color: var(--kys-text-subtle); }
+.kys-row:hover { background-color: var(--kys-state-hover); }

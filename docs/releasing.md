@@ -11,6 +11,7 @@ KYS uses [semantic versioning](https://semver.org): `MAJOR.MINOR.PATCH`.
 | Bug fixes only | PATCH | `0.2.2` → `0.2.3` |
 | New features, or a change to the vault file format | MINOR | `0.2.3` → `0.3.0` |
 | First release you'd call stable/safe (planned: once the vault is encrypted) | MAJOR | `0.x` → `1.0.0` |
+| A redesign that changes how the whole app looks and works | MAJOR | `1.4.0` → `2.0.0` |
 
 The version lives in one place: `"version"` in `package.json`. Git tags are `v` + that version.
 

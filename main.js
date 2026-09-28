@@ -495,7 +495,7 @@ ipcMain.handle('save-password', async (event, data) => {
   passwords.push(newEntry);
   await writePasswords(passwords);
   
-  return { success: true, message: 'Password saved successfully!' };
+  return { success: true, id: newEntry.id, message: 'Password saved successfully!' };
 });
 
 // Update a single password by ID

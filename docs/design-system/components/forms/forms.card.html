@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Forms" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../ds-fallback.js"></script>
+<style>body{padding:20px;background:var(--kys-bg)}.r{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c{display:flex;flex-direction:column;gap:16px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+window.KYS_READY.then(NS => {
+const { TextField, SearchField, Select, Checkbox, Slider, IconButton, Button } = NS;
+function Demo(){const [q,setQ]=React.useState('git');const [len,setLen]=React.useState(20);const [sym,setSym]=React.useState(true);return <div className="c">
+<SearchField value={q} onChange={e=>setQ(e.target.value)} onClear={()=>setQ('')}/>
+<div style={{display:'grid',gridTemplateColumns:'1fr 200px',gap:16}}><TextField label="Website/Application" placeholder="Enter website/app"/><Select label="Category" options={['Games','Email','Wi‑Fi','API keys']}/></div>
+<div style={{display:'flex',gap:12,alignItems:'flex-end'}}><TextField style={{flex:1}} label="Password" mono defaultValue="Tq8#vLm2!pXr9Wz" trailing={<IconButton icon="visibility" title="Show"/>}/><Button variant="primary" size="xl" icon="auto_awesome">Generate</Button></div>
+<div className="r" style={{gap:28}}><Slider label="Length" min={8} max={64} value={len} onChange={setLen}/><Checkbox checked={sym} onChange={setSym} label="Symbols (!@#$%^&*)"/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+});
+</script></body></html>

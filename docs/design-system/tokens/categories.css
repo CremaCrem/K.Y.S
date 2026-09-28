@@ -1,0 +1,22 @@
+:root {
+  /* Password categories — solid tile colors, always paired with a white glyph */
+  --kys-cat-games: #F2A516;
+  --kys-cat-email: #E5484D;
+  --kys-cat-web: #139EB8;
+  --kys-cat-apps: #B44FD6;
+  --kys-cat-banking: #3FAE5A;
+  --kys-cat-wifi: #2F86EB;
+  --kys-cat-social: #D946A8;
+  --kys-cat-shopping: #F26B3A;
+  --kys-cat-streaming: #E0356B;
+  --kys-cat-work: #5B6CF0;
+  --kys-cat-dev: #3F4B5C;
+  --kys-cat-servers: #0E9F8E;
+  --kys-cat-apikeys: #7F9C11;
+  --kys-cat-licenses: #8B5CF6;
+  --kys-cat-crypto: #C9A20A;
+  --kys-cat-identity: #8D6E63;
+  --kys-cat-smarthome: #5FA81F;
+  --kys-cat-recovery: #9A6B3F;
+  --kys-cat-other: #7D7771;
+}

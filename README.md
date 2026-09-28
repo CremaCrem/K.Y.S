@@ -23,12 +23,12 @@ Details: [docs/security.md](docs/security.md).
 
 - Profiles for everyone who shares the computer
 - Master password with encrypted storage, auto-lock, and a printable recovery kit
-- Categories: Email, Games, Socials, Apps, Bank, Shopping, Work, Entertainment
+- Categories for everyday logins (Email, Games, Bank, Wi‑Fi, Shopping...) and specialty ones (Servers & SSH, API keys, Licenses, Crypto, Recovery codes...)
 - Password generator, strength indicator, and duplicate detection
 - Notes per entry, search, edit, delete, favorites, and sorting
 - Password health dashboard: see which passwords are weak, reused, or old, with a tip on how to fix each
 - Password-protected export/import: move your passwords to another computer on a USB flash drive
-- Themes and languages (English, Spanish, Filipino)
+- Light and dark themes; English, Spanish, and Filipino
 
 ## Quick start (development)
 
@@ -43,6 +43,7 @@ npm run start
 |---|---|
 | [Development](docs/development.md) | Setup, scripts, project rules, commit style |
 | [Architecture](docs/architecture.md) | How the app is built, IPC API, data format and location |
+| [Design system](docs/design-system/README.md) | Colors, type, icons, components, and UI rules |
 | [Security](docs/security.md) | How the encryption works, what it does and doesn't protect |
 | [Roadmap](docs/roadmap.md) | Planned work, in order |
 | [Releasing](docs/releasing.md) | Versioning and publishing a new version |

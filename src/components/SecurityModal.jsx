@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import ModalShell, { primaryButton, secondaryButton } from './ModalShell';
-import NewPasswordFields, { inputClass, labelClass, newPasswordError } from './NewPasswordFields';
+import ModalShell from './ModalShell';
+import NewPasswordFields, { newPasswordError } from './NewPasswordFields';
+import { Alert, Button, Checkbox, TextField } from './ui';
 import { useLanguage } from '../context/LanguageContext';
 
-const section = 'mt-6 pt-5 border-t border-border-color space-y-3';
-const heading = 'font-medium text-text-color';
+const section = 'mt-6 pt-5 border-t border-border flex flex-col gap-3';
+const heading = 'text-base font-semibold';
 
 // Settings for the unlocked profile: its name, master password, "Remember on
 // this computer", recovery kit, and deleting the profile.
@@ -93,29 +94,22 @@ const SecurityModal = ({ profile, onClose, onRecoveryCode, onProfileChanged }) =
     });
   };
 
-  const message = (msg) => msg && (
-    <p className={`text-sm ${msg[1] ? 'text-red-500' : 'text-emerald-500'}`}>{t(msg[0])}</p>
-  );
+  const message = (msg) => msg && <Alert tone={msg[1] ? 'danger' : 'success'}>{t(msg[0])}</Alert>;
 
   return (
     <ModalShell title={t('security')} onClose={onClose}>
-      <form onSubmit={handleRename} className="space-y-3">
+      <form onSubmit={handleRename} className="flex flex-col gap-3">
         <h3 className={heading}>{t('profileSection')}</h3>
         <div className="flex gap-2">
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={30} className={inputClass} />
-          <button type="submit" disabled={busy || name.trim() === profile.name} className={`${primaryButton} !w-auto px-4 !h-11`}>
-            {t('saveName')}
-          </button>
+          <TextField value={name} onChange={(e) => setName(e.target.value)} maxLength={30} aria-label={t('profileSection')} style={{ flex: 1 }} />
+          <Button type="submit" size="xl" disabled={busy || name.trim() === profile.name}>{t('saveName')}</Button>
         </div>
         {message(nameMsg)}
       </form>
 
       <form onSubmit={handleChangePassword} className={section}>
         <h3 className={heading}>{t('changePassword')}</h3>
-        <div>
-          <label className={labelClass}>{t('currentPassword')}</label>
-          <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputClass} />
-        </div>
+        <TextField label={t('currentPassword')} type="password" value={current} onChange={(e) => setCurrent(e.target.value)} />
         <NewPasswordFields
           label={t('newPassword')}
           password={password}
@@ -124,66 +118,52 @@ const SecurityModal = ({ profile, onClose, onRecoveryCode, onProfileChanged }) =
           setConfirm={setConfirm}
         />
         {message(passwordMsg)}
-        <button type="submit" disabled={busy} className={primaryButton}>
+        <Button type="submit" size="lg" fullWidth disabled={busy}>
           {busy ? t('working') : t('changePassword')}
-        </button>
+        </Button>
       </form>
 
       <div className={section}>
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!remember?.remembered || confirmingRemember}
-            disabled={!remember?.available || busy}
-            onChange={(e) => (e.target.checked ? setConfirmingRemember(true) : setRemembered(false))}
-            className="mt-1 accent-button cursor-pointer"
-          />
-          <span>
-            <span className="block font-medium text-text-color">{t('remember')}</span>
-            <span className="block text-sm text-text-secondary">{t('rememberDesc')}</span>
-          </span>
-        </label>
-        {confirmingRemember && (
-          <div
-            ref={(el) => el?.scrollIntoView({ block: 'nearest' })}
-            className="p-4 rounded-xl border border-orange-500/40 bg-orange-500/10 space-y-3"
-          >
-            <p className="font-medium text-orange-500">{t('rememberConfirmTitle')}</p>
-            <p className="text-sm text-text-color">{t('rememberConfirmText')}</p>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setConfirmingRemember(false)} className={secondaryButton}>
-                {t('cancel')}
-              </button>
-              <button type="button" onClick={() => setRemembered(true)} disabled={busy} className={`${primaryButton} !bg-orange-500`}>
-                {t('rememberConfirmYes')}
-              </button>
-            </div>
+        <Checkbox
+          checked={!!remember?.remembered || confirmingRemember}
+          disabled={!remember?.available || busy}
+          onChange={(checked) => (checked ? setConfirmingRemember(true) : setRemembered(false))}
+        >
+          <span className="block text-[15px] font-semibold text-ink">{t('remember')}</span>
+          <span className="block">{t('rememberDesc')}</span>
+        </Checkbox>
+        {confirmingRemember ? (
+          <div ref={(el) => el?.scrollIntoView({ block: 'nearest' })}>
+            <Alert tone="warning">
+              <p className="font-semibold">{t('rememberConfirmTitle')}</p>
+              <p className="font-normal mt-1">{t('rememberConfirmText')}</p>
+              <div className="flex gap-2 mt-3">
+                <Button variant="outline" style={{ flex: 1 }} onClick={() => setConfirmingRemember(false)}>{t('cancel')}</Button>
+                <Button style={{ flex: 1 }} disabled={busy} onClick={() => setRemembered(true)}>{t('rememberConfirmYes')}</Button>
+              </div>
+            </Alert>
           </div>
+        ) : (
+          <p className="text-sm text-muted">{t('rememberWarning')}</p>
         )}
-        {!confirmingRemember && <p className="text-sm text-orange-500">{t('rememberWarning')}</p>}
-        {remember && !remember.available && <p className="text-sm text-text-secondary">{t('rememberUnavailable')}</p>}
+        {remember && !remember.available && <p className="text-sm text-muted">{t('rememberUnavailable')}</p>}
         {message(rememberMsg)}
       </div>
 
       <div className={section}>
         <h3 className={heading}>{t('newKit')}</h3>
-        <p className="text-sm text-text-secondary">{t('newKitWarning')}</p>
-        <button type="button" onClick={handleNewKit} disabled={busy} className={secondaryButton}>
-          {t('newKitButton')}
-        </button>
+        <p className="text-sm text-muted">{t('newKitWarning')}</p>
+        <Button variant="outline" size="lg" fullWidth disabled={busy} onClick={handleNewKit}>{t('newKitButton')}</Button>
       </div>
 
       <form onSubmit={handleDelete} className={section}>
-        <h3 className="font-medium text-red-500">{t('deleteProfile')}</h3>
-        <p className="text-sm text-text-secondary">{t('deleteProfileWarning')}</p>
-        <div>
-          <label className={labelClass}>{t('masterPassword')}</label>
-          <input type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className={inputClass} />
-        </div>
+        <h3 className={`${heading} text-danger`}>{t('deleteProfile')}</h3>
+        <p className="text-sm text-muted">{t('deleteProfileWarning')}</p>
+        <TextField label={t('masterPassword')} type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} />
         {message(deleteMsg)}
-        <button type="submit" disabled={busy || !deletePassword} className={`${primaryButton} !bg-red-500`}>
+        <Button type="submit" variant="danger" size="lg" icon="delete" fullWidth disabled={busy || !deletePassword}>
           {t('deleteProfileButton')}
-        </button>
+        </Button>
       </form>
     </ModalShell>
   );

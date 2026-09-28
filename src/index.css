@@ -1,10 +1,19 @@
-/* Bundled fonts (SIL Open Font License, see src/fonts/OFL-*.txt), so the app never contacts a font server. */
+/* Bundled fonts (see src/fonts/ for licenses), so the app never contacts a font server.
+   The icon font is a subset of Material Symbols Rounded; scripts/fetch-icons.sh rebuilds it. */
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Roboto Flex';
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./fonts/inter-latin-wght-normal.woff2') format('woff2');
+  src: url('./fonts/roboto-flex-latin-wght-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('./fonts/roboto-mono-latin-wght-normal.woff2') format('woff2');
 }
 
 @font-face {
@@ -15,169 +24,273 @@
   src: url('./fonts/montserrat-latin-wght-normal.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: block;
+  src: url('./fonts/material-symbols-rounded-subset.woff2') format('woff2');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+/* Design tokens from docs/design-system/tokens/ (the ones the app uses; spacing comes from
+   Tailwind's 4px scale, which matches --kys-space-*). Change both together. */
+:root {
+  --kys-orange-50: #FFF4E8;
+  --kys-orange-100: #FFE6CC;
+  --kys-orange-200: #FFCB94;
+  --kys-orange-300: #FBA95A;
+  --kys-orange-400: #F08C2E;
+  --kys-orange-500: #E3740D;
+  --kys-orange-600: #C45F05;
+  --kys-orange-700: #9C4A06;
+  --kys-orange-800: #733709;
+  --kys-orange-900: #4A2407;
+
+  --kys-neutral-0: #FFFFFF;
+  --kys-neutral-25: #FBF9F7;
+  --kys-neutral-50: #F7F5F2;
+  --kys-neutral-100: #EFECE8;
+  --kys-neutral-200: #E3DFDA;
+  --kys-neutral-300: #CFCAC4;
+  --kys-neutral-400: #A8A29B;
+  --kys-neutral-500: #7D7771;
+  --kys-neutral-600: #5E5953;
+  --kys-neutral-700: #45413C;
+  --kys-neutral-800: #2E2B28;
+  --kys-neutral-900: #1C1A18;
+
+  --kys-red-500: #E5484D;
+  --kys-red-50: #FDECEC;
+  --kys-red-700: #B42328;
+  --kys-amber-500: #F5A524;
+  --kys-amber-50: #FEF5E3;
+  --kys-amber-700: #8F5A00;
+  --kys-green-500: #2EB872;
+  --kys-green-50: #E6F7EE;
+  --kys-green-700: #16784A;
+  --kys-blue-500: #2F86EB;
+  --kys-blue-50: #E8F2FD;
+  --kys-blue-700: #1A5DAB;
+
+  --kys-primary: var(--kys-orange-500);
+  --kys-primary-hover: var(--kys-orange-600);
+  --kys-primary-text: var(--kys-orange-600);
+  --kys-on-primary: #FFFFFF;
+  --kys-primary-container: var(--kys-orange-50);
+  --kys-on-primary-container: var(--kys-orange-800);
+  --kys-focus-ring: rgba(227, 116, 13, 0.28);
+
+  --kys-bg: var(--kys-neutral-50);
+  --kys-surface: var(--kys-neutral-0);
+  --kys-surface-muted: var(--kys-neutral-100);
+  --kys-surface-sunken: var(--kys-neutral-25);
+  --kys-border: var(--kys-neutral-200);
+  --kys-border-strong: var(--kys-neutral-300);
+  --kys-text: var(--kys-neutral-900);
+  --kys-text-muted: var(--kys-neutral-600);
+  --kys-text-subtle: var(--kys-neutral-500);
+  --kys-state-hover: rgba(28, 26, 24, 0.06);
+  --kys-state-selected: var(--kys-orange-50);
+
+  --kys-danger: var(--kys-red-500);
+  --kys-danger-container: var(--kys-red-50);
+  --kys-on-danger-container: var(--kys-red-700);
+  --kys-warning: var(--kys-amber-500);
+  --kys-warning-container: var(--kys-amber-50);
+  --kys-on-warning-container: var(--kys-amber-700);
+  --kys-success: var(--kys-green-500);
+  --kys-success-container: var(--kys-green-50);
+  --kys-on-success-container: var(--kys-green-700);
+  --kys-info: var(--kys-blue-500);
+  --kys-info-container: var(--kys-blue-50);
+  --kys-on-info-container: var(--kys-blue-700);
+
+  --kys-favorite: #F5B82E;
+
+  --kys-cat-games: #F2A516;
+  --kys-cat-email: #E5484D;
+  --kys-cat-web: #139EB8;
+  --kys-cat-apps: #B44FD6;
+  --kys-cat-banking: #3FAE5A;
+  --kys-cat-wifi: #2F86EB;
+  --kys-cat-social: #D946A8;
+  --kys-cat-shopping: #F26B3A;
+  --kys-cat-streaming: #E0356B;
+  --kys-cat-work: #5B6CF0;
+  --kys-cat-dev: #3F4B5C;
+  --kys-cat-servers: #0E9F8E;
+  --kys-cat-apikeys: #7F9C11;
+  --kys-cat-licenses: #8B5CF6;
+  --kys-cat-crypto: #C9A20A;
+  --kys-cat-identity: #8D6E63;
+  --kys-cat-smarthome: #5FA81F;
+  --kys-cat-recovery: #9A6B3F;
+  --kys-cat-other: #7D7771;
+
+  --kys-font-sans: "Roboto Flex", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kys-font-mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --kys-font-wordmark: "Montserrat", "Roboto Flex", sans-serif;
+  --kys-font-icon: "Material Symbols Rounded";
+
+  --kys-radius-xs: 6px;
+  --kys-radius-sm: 12px;
+  --kys-radius-md: 16px;
+  --kys-radius-lg: 20px;
+  --kys-radius-xl: 24px;
+  --kys-radius-full: 999px;
+
+  --kys-shadow-1: 0 1px 2px rgba(28, 26, 24, 0.05), 0 1px 3px rgba(28, 26, 24, 0.07);
+  --kys-shadow-2: 0 4px 16px rgba(28, 26, 24, 0.08);
+  --kys-shadow-3: 0 8px 28px rgba(28, 26, 24, 0.18);
+  --kys-shadow-primary: 0 3px 10px rgba(227, 116, 13, 0.32);
+
+  --kys-ease: cubic-bezier(0.2, 0, 0, 1);
+  --kys-dur-fast: 120ms;
+  --kys-dur: 200ms;
 }
 
-html, body {
-  overflow: hidden;
-  height: 100%;
+/* The hidden dark themes start from dark and override below. */
+[data-theme="dark"], [data-theme="vaporwave"], [data-theme="alpha-wolf"] {
+  color-scheme: dark;
+  --kys-primary: var(--kys-orange-400);
+  --kys-primary-hover: var(--kys-orange-300);
+  --kys-primary-text: var(--kys-orange-300);
+  --kys-primary-container: #3A2410;
+  --kys-on-primary-container: var(--kys-orange-100);
+  --kys-bg: #141210;
+  --kys-surface: #1E1B19;
+  --kys-surface-muted: #2A2623;
+  --kys-surface-sunken: #181614;
+  --kys-border: #34302C;
+  --kys-border-strong: #4A4540;
+  --kys-text: #F4F1ED;
+  --kys-text-muted: #BDB6AF;
+  --kys-text-subtle: #948D86;
+  --kys-state-hover: rgba(255, 255, 255, 0.06);
+  --kys-state-selected: #3A2410;
+  --kys-danger-container: #3B1719;
+  --kys-on-danger-container: #FFB3B5;
+  --kys-warning-container: #3A2A0C;
+  --kys-on-warning-container: #FFD48A;
+  --kys-success-container: #0F2E1F;
+  --kys-on-success-container: #8FE0B5;
+  --kys-info-container: #10243D;
+  --kys-on-info-container: #A8CCF7;
+}
+
+/* Hidden themes, unlocked by secrets typed into the vault search (SECRET_THEMES
+   in App.js). Easter eggs, not part of the design system: same tokens, other mood. */
+[data-theme="pink"] {
+  --kys-primary: #E0569B;
+  --kys-primary-hover: #C93F85;
+  --kys-primary-text: #C2317A;
+  --kys-primary-container: #FFE3F1;
+  --kys-on-primary-container: #7A1F4E;
+  --kys-focus-ring: rgba(224, 86, 155, 0.3);
+  --kys-shadow-primary: 0 3px 10px rgba(224, 86, 155, 0.35);
+  --kys-bg: #FFF1F6;
+  --kys-surface: #FFFFFF;
+  --kys-surface-muted: #FFE4EE;
+  --kys-surface-sunken: #FFF8FB;
+  --kys-border: #F7D3E2;
+  --kys-border-strong: #EDB6CC;
+  --kys-text: #5C1238;
+  --kys-text-muted: #94476F;
+  --kys-text-subtle: #B7799A;
+  --kys-state-hover: rgba(199, 21, 133, 0.07);
+  --kys-state-selected: #FFE3F1;
+}
+
+[data-theme="vaporwave"] {
+  --kys-primary: #FF71CE;
+  --kys-primary-hover: #FF8FD9;
+  --kys-primary-text: #01CDFE;
+  --kys-on-primary: #1A1A2E;
+  --kys-primary-container: #3D2350;
+  --kys-on-primary-container: #FFB8E8;
+  --kys-focus-ring: rgba(1, 205, 254, 0.35);
+  --kys-shadow-primary: 0 0 14px rgba(255, 113, 206, 0.45);
+  --kys-titlebar: linear-gradient(90deg, #FF71CE, #B967FF 50%, #01CDFE);
+  --kys-bg: #1A1A2E;
+  --kys-surface: #24243E;
+  --kys-surface-muted: #2E2E52;
+  --kys-surface-sunken: #1F1F36;
+  --kys-border: #3A3A66;
+  --kys-border-strong: #5B4B8A;
+  --kys-text: #F5F0FF;
+  --kys-text-muted: #C9B8F0;
+  --kys-text-subtle: #9A8CC0;
+  --kys-state-hover: rgba(255, 113, 206, 0.1);
+  --kys-state-selected: #3D2350;
+}
+
+[data-theme="alpha-wolf"] {
+  --kys-primary: #DC2626;
+  --kys-primary-hover: #EF4444;
+  --kys-primary-text: #F87171;
+  --kys-primary-container: #3B1212;
+  --kys-on-primary-container: #FECACA;
+  --kys-focus-ring: rgba(220, 38, 38, 0.35);
+  --kys-shadow-primary: 0 3px 12px rgba(220, 38, 38, 0.45);
+  --kys-bg: #121212;
+  /* Slightly see-through so the wolf shows behind the panels. */
+  --kys-surface: rgba(28, 28, 28, 0.9);
+  --kys-surface-muted: rgba(44, 44, 44, 0.9);
+  --kys-surface-sunken: rgba(20, 20, 20, 0.9);
+  --kys-border: #333333;
+  --kys-border-strong: #4A4A4A;
+  --kys-text: #F5F5F5;
+  --kys-text-muted: #B4B4B4;
+  --kys-text-subtle: #8A8A8A;
+  --kys-state-selected: #3B1212;
+}
+[data-theme="alpha-wolf"] .kys-app {
+  background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.8)), url('./images/awooooo.jpg') center / cover;
+}
+
+html, body, #root { height: 100%; }
+body {
   margin: 0;
+  overflow: hidden;
+  font-family: var(--kys-font-sans);
+  color: var(--kys-text);
+  background: var(--kys-bg);
+  -webkit-font-smoothing: antialiased;
 }
+button, input, select, textarea { font-family: inherit; }
+button:focus-visible, [role="button"]:focus-visible { outline: 2px solid var(--kys-primary); outline-offset: 2px; }
 
-.light {
-  --background: 255, 255, 255;
-  --surface: 245, 245, 247;
-  --text-color: 28, 28, 30;
-  --text-secondary: 142, 142, 147;
-  --hover-text-color: 255, 255, 255;
-  --button: 227, 117, 12;
-  --border-color: 209, 209, 214;
-  --border-select: 227, 117, 12;
-  --hover: 23, 25, 31;
-  --categoryGame: 227, 117, 12;
-  --categoryEmail: 255, 59, 48;
-  --categorySocials: 0, 199, 190;
-  --categoryApp: 175, 82, 222;
-  --categoryBank: 52, 199, 89;
-  --editButton: 0, 122, 255;
-  --deleteButton: 255, 59, 48;
-  --entryList: 242, 242, 247;
-  --entryBar: 227, 117, 12;
-  --card-bg: 255, 255, 255;
-  --input-bg: 255, 255, 255;
-  --scrollbar-color: #c7c7cc;
-  --scrollbar-track-color: #f2f2f7;
-  --scrollbar-thumb-hover-color: #8e8e93;
-}
-
-.dark {
-  --background: 28, 28, 30;
-  --surface: 44, 44, 46;
-  --text-color: 255, 255, 255;
-  --text-secondary: 142, 142, 147;
-  --hover-text-color: 28, 28, 30;
-  --button: 255, 159, 10;
-  --border-color: 58, 58, 60;
-  --border-select: 255, 159, 10;
-  --hover: 255, 159, 10;
-  --categoryGame: 255, 159, 10;
-  --categoryEmail: 255, 69, 58;
-  --categorySocials: 100, 210, 255;
-  --categoryApp: 191, 90, 242;
-  --categoryBank: 48, 209, 88;
-  --editButton: 10, 132, 255;
-  --deleteButton: 255, 69, 58;
-  --entryList: 44, 44, 46;
-  --entryBar: 255, 159, 10;
-  --card-bg: 44, 44, 46;
-  --input-bg: 58, 58, 60;
-  --scrollbar-color: #48484a;
-  --scrollbar-track-color: #1c1c1e;
-  --scrollbar-thumb-hover-color: #636366;
-}
-
-.pink {
-  --background: 255, 241, 246;
-  --surface: 255, 228, 238;
-  --text-color: 199, 21, 133;
-  --text-secondary: 219, 112, 147;
-  --hover-text-color: 255, 255, 255;
-  --button: 255, 105, 180;
-  --border-color: 255, 182, 193;
-  --border-select: 255, 105, 180;
-  --hover: 255, 20, 147;
-  --categoryGame: 255, 105, 180;
-  --categoryEmail: 255, 99, 71;
-  --categorySocials: 0, 206, 209;
-  --categoryApp: 218, 112, 214;
-  --categoryBank: 144, 238, 144;
-  --editButton: 255, 105, 180;
-  --deleteButton: 255, 99, 71;
-  --entryList: 255, 240, 245;
-  --entryBar: 255, 105, 180;
-  --card-bg: 255, 255, 255;
-  --input-bg: 255, 255, 255;
-  --scrollbar-color: #ffb6c1;
-  --scrollbar-track-color: #fff0f5;
-  --scrollbar-thumb-hover-color: #ff69b4;
-}
-
-.vaporwave {
-  --background: 26, 26, 46;
-  --surface: 36, 36, 62;
-  --text-color: 255, 255, 255;
-  --text-secondary: 255, 113, 206;
-  --hover-text-color: 26, 26, 46;
-  --button: 0, 255, 255;
-  --border-color: 255, 113, 206;
-  --border-select: 0, 255, 255;
-  --hover: 255, 113, 206;
-  --categoryGame: 0, 255, 255;
-  --categoryEmail: 255, 113, 206;
-  --categorySocials: 1, 205, 254;
-  --categoryApp: 185, 103, 255;
-  --categoryBank: 5, 255, 161;
-  --editButton: 0, 255, 255;
-  --deleteButton: 255, 113, 206;
-  --entryList: 36, 36, 62;
-  --entryBar: 0, 255, 255;
-  --card-bg: 46, 46, 82;
-  --input-bg: 36, 36, 62;
-  --scrollbar-color: rgba(0, 255, 255, 0.6);
-  --scrollbar-track-color: rgba(26, 26, 46, 0.8);
-  --scrollbar-thumb-hover-color: rgba(255, 113, 206, 0.8);
-}
-
-.alpha-wolf {
-  --background: 18, 18, 18;
-  --surface: 28, 28, 28;
-  --text-color: 255, 255, 255;
-  --text-secondary: 180, 180, 180;
-  --hover-text-color: 18, 18, 18;
-  --button: 220, 38, 38;
-  --border-color: 55, 55, 55;
-  --border-select: 220, 38, 38;
-  --hover: 220, 38, 38;
-  --categoryGame: 220, 38, 38;
-  --categoryEmail: 59, 130, 246;
-  --categorySocials: 236, 72, 153;
-  --categoryApp: 139, 92, 246;
-  --categoryBank: 34, 197, 94;
-  --editButton: 59, 130, 246;
-  --deleteButton: 220, 38, 38;
-  --entryList: 28, 28, 28;
-  --entryBar: 220, 38, 38;
-  --card-bg: 38, 38, 38;
-  --input-bg: 28, 28, 28;
-  --scrollbar-color: rgba(220, 38, 38, 0.6);
-  --scrollbar-track-color: rgba(18, 18, 18, 0.8);
-  --scrollbar-thumb-hover-color: rgba(239, 68, 68, 0.8);
-}
+.kys-icon { font-family: var(--kys-font-icon); font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; user-select: none; }
+.kys-press { transition: filter var(--kys-dur-fast) var(--kys-ease), background-color var(--kys-dur-fast) var(--kys-ease), transform var(--kys-dur-fast) var(--kys-ease); }
+.kys-press:hover:not(:disabled) { filter: brightness(0.95); }
+.kys-press:active:not(:disabled) { transform: scale(0.98); }
+.kys-ghost { transition: background-color var(--kys-dur-fast) var(--kys-ease); }
+.kys-ghost:hover:not(:disabled) { background-color: var(--kys-state-hover) !important; }
+.kys-field { transition: border-color var(--kys-dur-fast), box-shadow var(--kys-dur-fast); }
+.kys-field:focus-within { border-color: var(--kys-primary) !important; box-shadow: 0 0 0 3px var(--kys-focus-ring); }
+.kys-field input::placeholder, .kys-field textarea::placeholder { color: var(--kys-text-subtle); }
+.kys-row { transition: background-color var(--kys-dur-fast); }
+.kys-row:hover { background-color: var(--kys-state-hover); }
+.kys-check:focus-visible + span { box-shadow: 0 0 0 3px var(--kys-focus-ring); }
+/* White controls on the orange title bar: a 6% ink wash would be invisible there. */
+.kys-bar-btn { transition: background-color var(--kys-dur-fast) var(--kys-ease); }
+.kys-bar-btn:hover { background-color: rgba(255, 255, 255, 0.16) !important; }
+.kys-bar-btn:focus-visible { outline-color: var(--kys-on-primary); }
 
 .drag { -webkit-app-region: drag; }
 .no-drag { -webkit-app-region: no-drag; }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes drawCircle { to { stroke-dashoffset: 0; } }
-@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+@keyframes kys-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.kys-fade-in { animation: kys-fade-in var(--kys-dur) var(--kys-ease) both; }
 
-.animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
-.animate-draw-circle { animation: drawCircle 0.6s ease-out 0.1s forwards; }
-.animate-draw-check { animation: drawCheck 0.4s ease-out 0.5s forwards; }
-
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--scrollbar-track-color); border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
-
-input:focus, select:focus { outline: none; box-shadow: 0 0 0 3px rgba(var(--button), 0.3); }
-button { transition: all 0.2s ease; }
-button:active { transform: scale(0.97); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--kys-border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--kys-text-subtle); }
 
 /* Printing the recovery kit: only .print-area is printed, in black on white. */
 @media print {

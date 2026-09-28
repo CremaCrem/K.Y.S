@@ -1,0 +1,33 @@
+:root {
+  --kys-space-1: 4px;
+  --kys-space-2: 8px;
+  --kys-space-3: 12px;
+  --kys-space-4: 16px;
+  --kys-space-5: 20px;
+  --kys-space-6: 24px;
+  --kys-space-8: 32px;
+  --kys-space-10: 40px;
+  --kys-space-12: 48px;
+
+  --kys-radius-xs: 6px;
+  --kys-radius-sm: 12px;
+  --kys-radius-md: 16px;
+  --kys-radius-lg: 20px;
+  --kys-radius-xl: 24px;
+  --kys-radius-full: 999px;
+
+  --kys-control-sm: 32px;
+  --kys-control-md: 40px;
+  --kys-control-lg: 48px;
+  --kys-control-xl: 52px;
+
+  --kys-shadow-1: 0 1px 2px rgba(28, 26, 24, 0.05), 0 1px 3px rgba(28, 26, 24, 0.07);
+  --kys-shadow-2: 0 4px 16px rgba(28, 26, 24, 0.08);
+  --kys-shadow-3: 0 8px 28px rgba(28, 26, 24, 0.18);
+  --kys-shadow-primary: 0 3px 10px rgba(227, 116, 13, 0.32);
+
+  --kys-ease: cubic-bezier(0.2, 0, 0, 1);
+  --kys-dur-fast: 120ms;
+  --kys-dur: 200ms;
+  --kys-dur-slow: 320ms;
+}

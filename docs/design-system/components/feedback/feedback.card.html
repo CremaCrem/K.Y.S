@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x230" name="Feedback" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../ds-fallback.js"></script>
+<style>body{padding:20px;background:var(--kys-bg)}.r{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c{display:flex;flex-direction:column;gap:16px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+window.KYS_READY.then(NS => {
+const { Toast, Alert, Button } = NS;
+function Demo(){return <div className="c">
+<Alert tone="danger">Reused on Amazon</Alert>
+<Alert tone="warning">Not changed in 90+ days</Alert>
+<Alert tone="success" action={<Button variant="ghost">Undo</Button>}>Vault backed up to this device</Alert>
+<div><Toast message="Password copied"/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+});
+</script></body></html>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { HiLockClosed, HiExclamationTriangle } from 'react-icons/hi2';
-import NewPasswordFields, { inputClass, labelClass, newPasswordError } from '../components/NewPasswordFields';
+import NewPasswordFields, { newPasswordError } from '../components/NewPasswordFields';
+import { Alert, Button, Card, Icon, TextField, Wordmark } from '../components/ui';
 import ProfileAvatar from '../components/ProfileAvatar';
 import ProfilePicker from './ProfilePicker';
 import { useLanguage } from '../context/LanguageContext';
@@ -71,26 +71,20 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
   }
 
   const switchProfile = (
-    <button
-      type="button"
-      onClick={async () => { await window.electron.switchProfile(); onUnlocked(); }}
-      className="w-full text-sm text-text-secondary hover:underline"
-    >
+    <Button variant="ghost" style={{ color: 'var(--kys-text-muted)', alignSelf: 'center' }}
+      onClick={async () => { await window.electron.switchProfile(); onUnlocked(); }}>
       {t('switchProfile')}
-    </button>
+    </Button>
   );
 
   if (mode === 'error') {
     return (
-      <div className="h-full bg-background flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-surface rounded-2xl shadow-soft p-6 space-y-3">
-          <div className="flex items-center gap-2 text-red-500">
-            <HiExclamationTriangle size={20} />
-            <h1 className="text-lg font-semibold">{t('vaultErrorTitle')}</h1>
-          </div>
-          <p className="text-sm text-text-secondary break-words select-text">{vault.message}</p>
+      <div className="h-full overflow-auto flex items-center justify-center p-6">
+        <Card className="w-full max-w-md flex flex-col gap-4">
+          <Alert tone="danger">{t('vaultErrorTitle')}</Alert>
+          <p className="text-sm text-muted break-words select-text">{vault.message}</p>
           {switchProfile}
-        </div>
+        </Card>
       </div>
     );
   }
@@ -104,71 +98,45 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
   const [title, intro] = titles[mode];
 
   return (
-    <div className="h-full overflow-auto bg-background flex flex-col items-center justify-center p-6">
-      <div className="text-center mb-6">
-        <h1 className="text-4xl font-bold font-montserrat text-text-color tracking-tight">{t('appName')}</h1>
-        <p className="text-text-secondary mt-1 text-sm font-medium">{t('tagline')}</p>
-      </div>
+    <div className="h-full overflow-auto flex flex-col items-center justify-center p-6">
+      <div className="mb-7"><Wordmark large center /></div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-surface rounded-2xl shadow-soft p-6 space-y-4">
+      <Card as="form" onSubmit={handleSubmit} className="w-full max-w-[440px] flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <ProfileAvatar profile={vault.profile} className="w-12 h-12 text-xl rounded-xl" />
+          <ProfileAvatar profile={vault.profile} size={48} />
           <div className="min-w-0">
-            <h2 className="text-xl font-semibold text-text-color">{t(title)}</h2>
-            <p className="text-sm text-text-secondary truncate flex items-center gap-1">
-              <HiLockClosed size={12} /> {vault.profile.name}
+            <h1 className="text-[22px] font-bold leading-tight">{t(title)}</h1>
+            <p className="text-sm text-muted truncate flex items-center gap-1">
+              <Icon name="lock" size={14} /> {vault.profile.name}
             </p>
           </div>
         </div>
-        <p className="text-sm text-text-secondary">
+        <p className="text-sm text-muted">
           {t(intro)} {mode === 'setup' && vault.hasExistingPasswords && t('setupExisting')}
         </p>
 
         {mode === 'unlock' && vault.remembered && (
           <>
-            <button
-              type="button"
-              disabled={busy}
+            <Button variant="tonal" size="lg" icon="key" fullWidth disabled={busy}
               onClick={() => run(async () => {
                 const { ok } = await window.electron.unlockRemembered();
                 if (ok) return onUnlocked();
                 setError('rememberFailed');
                 onUnlocked(); // refreshes the status, which hides this button
-              })}
-              className="w-full h-11 bg-button text-white rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50"
-            >
+              })}>
               {t('unlockRemembered')}
-            </button>
-            <p className="text-center text-xs text-text-secondary">{t('or')}</p>
+            </Button>
+            <p className="text-center text-xs text-subtle">{t('or')}</p>
           </>
         )}
 
         {mode === 'unlock' && (
-          <div>
-            <label className={labelClass}>{t('masterPassword')}</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClass}
-              autoFocus
-            />
-          </div>
+          <TextField label={t('masterPassword')} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
         )}
 
         {mode === 'recover' && (
-          <div>
-            <label className={labelClass}>{t('recoveryCode')}</label>
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className={`${inputClass} font-mono uppercase`}
-              placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
-              spellCheck={false}
-              autoFocus
-            />
-          </div>
+          <TextField label={t('recoveryCode')} value={code} onChange={(e) => setCode(e.target.value)} mono
+            placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" spellCheck={false} autoFocus inputStyle={{ textTransform: 'uppercase' }} />
         )}
 
         {mode !== 'unlock' && (
@@ -182,28 +150,20 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
           />
         )}
 
-        {error && <p className="text-sm text-red-500">{t(error)}</p>}
+        {error && <Alert tone="danger">{t(error)}</Alert>}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full h-11 bg-button text-white rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50"
-        >
+        <Button type="submit" size="xl" fullWidth disabled={busy} style={{ marginTop: 4 }}>
           {busy ? t('working') : t(submitLabel[mode])}
-        </button>
+        </Button>
 
-        {mode === 'unlock' && (
-          <button type="button" onClick={() => switchMode(true)} className="w-full text-sm text-button hover:underline">
-            {t('forgotPassword')}
-          </button>
-        )}
-        {mode === 'recover' && (
-          <button type="button" onClick={() => switchMode(false)} className="w-full text-sm text-text-secondary hover:underline">
-            {t('back')}
-          </button>
-        )}
-        {mode !== 'recover' && switchProfile}
-      </form>
+        <div className="flex flex-col items-center gap-1">
+          {mode === 'unlock' && <Button variant="ghost" onClick={() => switchMode(true)}>{t('forgotPassword')}</Button>}
+          {mode === 'recover' && (
+            <Button variant="ghost" style={{ color: 'var(--kys-text-muted)' }} onClick={() => switchMode(false)}>{t('back')}</Button>
+          )}
+          {mode !== 'recover' && switchProfile}
+        </div>
+      </Card>
     </div>
   );
 };

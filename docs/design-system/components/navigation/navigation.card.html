@@ -1,0 +1,18 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Navigation" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../ds-fallback.js"></script>
+<style>body{padding:20px;background:var(--kys-bg)}.r{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c{display:flex;flex-direction:column;gap:16px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+window.KYS_READY.then(NS => {
+const { TitleBar, NavRail, Icon } = NS;
+function Demo(){const [a,setA]=React.useState('vault');return <div style={{borderRadius:16,overflow:'hidden',border:'1px solid var(--kys-border)',background:'var(--kys-bg)'}}>
+<TitleBar/>
+<div style={{display:'flex',height:230}}><NavRail active={a} onChange={setA} items={[{id:'vault',label:'Vault',icon:'shield_lock'},{id:'generator',label:'Generator',icon:'password'},{id:'health',label:'Health',icon:'health_and_safety'},{id:'settings',label:'Settings',icon:'settings'}]}/><div style={{flex:1,margin:'16px 16px 16px 0',background:'var(--kys-surface)',borderRadius:24}}/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+});
+</script></body></html>

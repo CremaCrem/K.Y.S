@@ -14,6 +14,7 @@ The repository owner is the sole author. Coding agents are tools, not contributo
 `docs/` is the single source of truth. Don't duplicate it here or in the README; link to it and update it.
 
 - [docs/architecture.md](docs/architecture.md): processes, IPC API, data format
+- [docs/design-system/README.md](docs/design-system/README.md): tokens, components, and UI rules
 - [docs/development.md](docs/development.md): setup, scripts, rules, commit style
 - [docs/security.md](docs/security.md): what is and isn't protected
 - [docs/roadmap.md](docs/roadmap.md): planned work, in order

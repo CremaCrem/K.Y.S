@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import ModalShell, { primaryButton, secondaryButton } from './ModalShell';
-import NewPasswordFields, { inputClass, labelClass, newPasswordError } from './NewPasswordFields';
+import ModalShell from './ModalShell';
+import NewPasswordFields, { newPasswordError } from './NewPasswordFields';
+import { Alert, Button, Checkbox, TextField } from './ui';
 import { useLanguage } from '../context/LanguageContext';
 
 // Asks for the master password (proof it's the owner), then main.js writes a
@@ -38,29 +39,20 @@ const ExportModal = ({ onClose }) => {
   if (exported !== null) {
     return (
       <ModalShell title={t('exportTitle')} onClose={onClose}>
-        <p className="text-sm text-emerald-500 mb-4">{t('exportDone')} {exported}</p>
-        <button type="button" onClick={onClose} className={secondaryButton}>{t('close')}</button>
+        <div className="flex flex-col gap-4">
+          <Alert tone="success">{t('exportDone')} {exported}</Alert>
+          <Button variant="outline" size="lg" fullWidth onClick={onClose}>{t('close')}</Button>
+        </div>
       </ModalShell>
     );
   }
 
   return (
     <ModalShell title={t('exportTitle')} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm text-text-secondary">{t('exportIntro')}</p>
-        <div>
-          <label className={labelClass}>{t('masterPassword')}</label>
-          <input type="password" value={master} onChange={(e) => setMaster(e.target.value)} className={inputClass} autoFocus />
-        </div>
-        <label className="flex items-center gap-2 text-sm text-text-color cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useMaster}
-            onChange={(e) => setUseMaster(e.target.checked)}
-            className="accent-button cursor-pointer"
-          />
-          {t('exportUseMaster')}
-        </label>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <p className="text-sm text-muted">{t('exportIntro')}</p>
+        <TextField label={t('masterPassword')} type="password" value={master} onChange={(e) => setMaster(e.target.value)} autoFocus />
+        <Checkbox checked={useMaster} onChange={setUseMaster}>{t('exportUseMaster')}</Checkbox>
         {!useMaster && (
           <NewPasswordFields
             label={t('filePassword')}
@@ -70,11 +62,11 @@ const ExportModal = ({ onClose }) => {
             setConfirm={setConfirm}
           />
         )}
-        <p className="text-sm text-orange-500">{t('exportWarning')}</p>
-        {error && <p className="text-sm text-red-500">{t(error)}</p>}
-        <button type="submit" disabled={busy} className={primaryButton}>
+        <Alert tone="warning">{t('exportWarning')}</Alert>
+        {error && <Alert tone="danger">{t(error)}</Alert>}
+        <Button type="submit" size="lg" icon="upload" fullWidth disabled={busy}>
           {busy ? t('working') : t('exportButton')}
-        </button>
+        </Button>
       </form>
     </ModalShell>
   );

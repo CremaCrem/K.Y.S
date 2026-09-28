@@ -1,9 +1,7 @@
 import React from 'react';
 import PasswordStrength from './PasswordStrength';
+import { TextField } from './ui';
 import { useLanguage } from '../context/LanguageContext';
-
-export const inputClass = 'w-full h-11 px-4 bg-input-bg border border-border-color rounded-xl text-text-color placeholder-text-secondary transition-all';
-export const labelClass = 'block text-sm font-medium text-text-color mb-1.5';
 
 // Returns a translation key describing what's wrong, or null. main.js enforces the same minimum.
 export const newPasswordError = (password, confirm) => {
@@ -16,26 +14,11 @@ const NewPasswordFields = ({ label, password, confirm, setPassword, setConfirm, 
   const { t } = useLanguage();
   return (
     <>
-      <div>
-        <label className={labelClass}>{label}</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={inputClass}
-          autoFocus={autoFocus}
-        />
+      <div className="flex flex-col gap-2">
+        <TextField label={label} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus={autoFocus} />
         <PasswordStrength password={password} />
       </div>
-      <div>
-        <label className={labelClass}>{t('confirmPassword')}</label>
-        <input
-          type="password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className={inputClass}
-        />
-      </div>
+      <TextField label={t('confirmPassword')} type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { HiPlus } from 'react-icons/hi2';
 import ProfileAvatar from '../components/ProfileAvatar';
-import NewPasswordFields, { inputClass, labelClass, newPasswordError } from '../components/NewPasswordFields';
+import NewPasswordFields, { newPasswordError } from '../components/NewPasswordFields';
+import { Alert, Button, Card, Icon, TextField, Wordmark } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 
 // "Who's using KYS?": one card per person on this computer, like Netflix.
@@ -39,32 +39,17 @@ const ProfilePicker = ({ profiles, onPicked, onRecoveryCode }) => {
     }
   };
 
-  const header = (
-    <div className="text-center mb-8">
-      <h1 className="text-4xl font-bold font-montserrat text-text-color tracking-tight">{t('appName')}</h1>
-      <p className="text-text-secondary mt-1 text-sm font-medium">{t('tagline')}</p>
-    </div>
-  );
+  const header = <div className="mb-8"><Wordmark large center /></div>;
 
   if (adding) {
     return (
-      <div className="h-full overflow-auto bg-background flex flex-col items-center justify-center p-6">
+      <div className="h-full overflow-auto flex flex-col items-center justify-center p-6">
         {header}
-        <form onSubmit={handleCreate} className="w-full max-w-sm bg-surface rounded-2xl shadow-soft p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-text-color">{t(profiles.length ? 'newProfile' : 'welcomeTitle')}</h2>
-          <p className="text-sm text-text-secondary">{t('welcomeIntro')}</p>
-          <div>
-            <label className={labelClass}>{t('profileName')}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={30}
-              placeholder={t('profileNamePlaceholder')}
-              className={inputClass}
-              autoFocus
-            />
-          </div>
+        <Card as="form" onSubmit={handleCreate} className="w-full max-w-[440px] flex flex-col gap-4">
+          <h1 className="text-[22px] font-bold">{t(profiles.length ? 'newProfile' : 'welcomeTitle')}</h1>
+          <p className="text-sm text-muted">{t('welcomeIntro')}</p>
+          <TextField label={t('profileName')} value={name} onChange={(e) => setName(e.target.value)}
+            maxLength={30} placeholder={t('profileNamePlaceholder')} autoFocus />
           <NewPasswordFields
             label={t('masterPassword')}
             password={password}
@@ -72,42 +57,39 @@ const ProfilePicker = ({ profiles, onPicked, onRecoveryCode }) => {
             setPassword={setPassword}
             setConfirm={setConfirm}
           />
-          {error && <p className="text-sm text-red-500">{t(error)}</p>}
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full h-11 bg-button text-white rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50"
-          >
+          {error && <Alert tone="danger">{t(error)}</Alert>}
+          <Button type="submit" size="xl" fullWidth disabled={busy} style={{ marginTop: 4 }}>
             {busy ? t('working') : t('createProfile')}
-          </button>
+          </Button>
           {profiles.length > 0 && (
-            <button type="button" onClick={() => { setAdding(false); setError(null); }} className="w-full text-sm text-text-secondary hover:underline">
+            <Button variant="ghost" style={{ color: 'var(--kys-text-muted)', alignSelf: 'center' }}
+              onClick={() => { setAdding(false); setError(null); }}>
               {t('back')}
-            </button>
+            </Button>
           )}
-        </form>
+        </Card>
       </div>
     );
   }
 
+  const tile = 'rounded-[31px] ring-4 ring-transparent group-hover:ring-primary group-focus-visible:ring-primary transition-shadow';
+
   return (
-    <div className="h-full overflow-auto bg-background flex flex-col items-center justify-center p-6">
+    <div className="h-full overflow-auto flex flex-col items-center justify-center p-6">
       {header}
-      <h2 className="text-2xl font-semibold text-text-color mb-6">{t('whoIsUsing')}</h2>
-      <div className="flex flex-wrap justify-center gap-6 max-w-3xl">
+      <h1 className="text-[22px] font-bold mb-8">{t('whoIsUsing')}</h1>
+      <div className="flex flex-wrap justify-center gap-8 max-w-3xl">
         {profiles.map((profile) => (
-          <button key={profile.id} onClick={() => pick(profile.id)} className="group flex flex-col items-center gap-2 w-28">
-            <div className="rounded-2xl ring-4 ring-transparent group-hover:ring-button transition-all">
-              <ProfileAvatar profile={profile} />
-            </div>
-            <span className="text-sm text-text-secondary group-hover:text-text-color truncate w-full text-center">{profile.name}</span>
+          <button key={profile.id} type="button" onClick={() => pick(profile.id)} className="group flex flex-col items-center gap-3 w-28 outline-none">
+            <div className={tile}><ProfileAvatar profile={profile} /></div>
+            <span className="text-[15px] font-medium text-muted group-hover:text-ink truncate w-full text-center">{profile.name}</span>
           </button>
         ))}
-        <button onClick={() => setAdding(true)} className="group flex flex-col items-center gap-2 w-28">
-          <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-border-color group-hover:border-button flex items-center justify-center text-text-secondary group-hover:text-button transition-all">
-            <HiPlus size={36} />
+        <button type="button" onClick={() => setAdding(true)} className="group flex flex-col items-center gap-3 w-28 outline-none">
+          <div className={`${tile} w-24 h-24 border-2 border-dashed border-border-strong flex items-center justify-center text-muted group-hover:text-primary-text`}>
+            <Icon name="add" size={40} />
           </div>
-          <span className="text-sm text-text-secondary group-hover:text-text-color">{t('addPerson')}</span>
+          <span className="text-[15px] font-medium text-muted group-hover:text-ink">{t('addPerson')}</span>
         </button>
       </div>
     </div>
