@@ -28,13 +28,16 @@ All operations use `ipcRenderer.invoke` → `ipcMain.handle`. Password operation
 
 | `window.electron.*` | Channel | Does |
 |---|---|---|
-| `getVaultStatus()` | `vault-status` | `{ status }`: `setup` (no vault, or a pre-1.0 plaintext one; then `hasExistingPasswords: true`), `locked`, `unlocked`, or `error` (with `message`). |
+| `getVaultStatus()` | `vault-status` | `{ status }`: `setup` (no vault, or a pre-1.0 plaintext one; then `hasExistingPasswords: true`), `locked` (with `remembered` if this computer can unlock it), `unlocked`, or `error` (with `message`). On the first call per launch it tries the remembered key, so a remembered vault opens unlocked. |
 | `setupVault(password)` | `setup-vault` | Creates the encrypted vault (migrating plaintext entries), unlocks it, returns `{ recoveryCode }`. Refuses if already encrypted. |
 | `unlock(password)` | `unlock` | `{ ok }`. |
 | `recover(recoveryCode, newPassword)` | `recover` | Forgot password: unlocks with the recovery code and sets a new password. `{ ok }`. |
 | `lock()` | `lock` | Forgets the key and sends `vault-locked`. |
 | `changePassword(current, new)` | `change-password` | `{ ok }`; `ok: false` if `current` is wrong. |
 | `newRecoveryCode()` | `new-recovery-code` | Replaces the recovery code (the old one stops working), returns `{ recoveryCode }`. |
+| `unlockRemembered()` | `unlock-remembered` | One-click unlock with the key remembered on this computer. `{ ok }`. |
+| `getRemember()` | `get-remember` | `{ available, remembered }`. `available` is false where the OS can't protect the key (e.g. Linux without a keyring). |
+| `setRemember(enabled)` | `set-remember` | Unlocked only. Stores or deletes this computer's copy of the vault key. |
 | `onVaultLocked(callback)` | `vault-locked` (event) | Fires on manual lock and auto-lock. Returns an unsubscribe function. |
 
 New passwords must be at least 8 characters; `main.js` enforces it, the UI mirrors it.
@@ -101,6 +104,8 @@ How `vault.js` protects the file:
 - **Missing file** → setup. **Plain JSON array** (pre-1.0) → setup, which encrypts the existing entries and deletes the plaintext `.bak`. **Anything else unreadable** throws; the UI shows an error screen instead of setup, so nothing overwrites it.
 - **Writes are atomic**: write `passwords.json.tmp`, copy the current file to `passwords.json.bak`, rename the temp file into place.
 - **Recovery**: if the vault is damaged, close KYS and rename `passwords.json.bak` to `passwords.json`. It holds the version before the last save.
+
+"Remember on this computer" stores the vault key, encrypted with Electron's `safeStorage` (DPAPI on Windows, Keychain on macOS), in `device-unlock.bin` next to the vault. It's separate from the vault so a copied vault doesn't carry it. A stored key that no longer opens the vault is deleted; setting up a new vault deletes it too.
 
 On startup, `migrateOldPasswords()` copies a `passwords.json` from the app directory into `userData` if `userData` has none (legacy location from v0.1.0).
 

@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electron', {
   lock: () => ipcRenderer.invoke('lock'),
   changePassword: (currentPassword, newPassword) => ipcRenderer.invoke('change-password', { currentPassword, newPassword }),
   newRecoveryCode: () => ipcRenderer.invoke('new-recovery-code'),
+  unlockRemembered: () => ipcRenderer.invoke('unlock-remembered'),
+  getRemember: () => ipcRenderer.invoke('get-remember'),
+  setRemember: (enabled) => ipcRenderer.invoke('set-remember', enabled),
   onVaultLocked: (callback) => {
     const listener = () => callback();
     ipcRenderer.on('vault-locked', listener);

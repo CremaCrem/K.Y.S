@@ -10,6 +10,7 @@ An honest description of what KYS protects today. Update this file whenever that
 | Master password | ✅ Mandatory, at least 8 characters. Never stored; only used to derive a key. |
 | Forgotten password | ✅ Recovery kit (a one-time code shown at setup). Without the password *or* the code, the data is gone for good. |
 | Lock | ✅ Manual lock button; auto-lock after 5 minutes idle, on screen lock, and on sleep. |
+| Remember on this computer | ⚠️ Off by default. When on, the vault key is stored encrypted by the OS account (DPAPI on Windows), so KYS opens and unlocks without the master password. Protection then equals your Windows account's. |
 | Vault integrity | ✅ Atomic writes, one `.bak` of the previous version, tampering detected by GCM, an unreadable vault is never overwritten. |
 | Renderer isolation | ✅ `contextIsolation: true`, `nodeIntegration: false`. The vault key never leaves the main process. |
 | What the UI can load or contact | ✅ Content Security Policy: only the app's own scripts, styles, fonts, and images; no outside connections. Pop-ups and navigating away are blocked. Fonts are bundled, so the app makes no network requests at all. |
@@ -38,7 +39,8 @@ recovery code ────scrypt──► key B ──┘
 ## What it protects against
 
 - ✅ Someone copying `passwords.json` (stolen laptop, cloud backup, malware that grabs files): they get ciphertext and have to guess the master password at scrypt speed.
-- ✅ Someone at your unlocked-then-idle computer, after the auto-lock.
+- ✅ Someone at your unlocked-then-idle computer, after the auto-lock. **Unless "Remember on this computer" is on**: then anyone signed in to your Windows account can open KYS, and locking only hides the list.
+- ✅ With "Remember on this computer" on, a copied vault file still needs the master password: the remembered key is in a separate file that only your Windows account on that PC can decrypt.
 - ❌ Malware running as you while KYS is unlocked (keyloggers, memory readers). No desktop password manager can fully stop that.
 - ❌ A weak master password. scrypt slows guessing; it can't save `password1`.
 

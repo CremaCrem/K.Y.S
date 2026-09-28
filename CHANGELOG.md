@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Added
+- "Remember on this computer" (Security settings, off by default): KYS opens without asking for your master password, and the lock screen gets a one-click unlock. Only your Windows account on that computer can use it.
+
 #### Changed
 - The strength meter now judges length and guessability instead of counting character types: common passwords and patterns like `Password1!`, `aaaa`, or `1234` show as weak, and long passwords show as strong even without symbols.
 

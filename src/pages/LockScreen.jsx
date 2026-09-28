@@ -101,6 +101,25 @@ const LockScreen = ({ vault, onUnlocked, onRecoveryCode }) => {
           {t(intro)} {mode === 'setup' && vault.hasExistingPasswords && t('setupExisting')}
         </p>
 
+        {mode === 'unlock' && vault.remembered && (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => run(async () => {
+                const { ok } = await window.electron.unlockRemembered();
+                if (ok) return onUnlocked();
+                setError('rememberFailed');
+                onUnlocked(); // refreshes the status, which hides this button
+              })}
+              className="w-full h-11 bg-button text-white rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {t('unlockRemembered')}
+            </button>
+            <p className="text-center text-xs text-text-secondary">{t('or')}</p>
+          </>
+        )}
+
         {mode === 'unlock' && (
           <div>
             <label className={labelClass}>{t('masterPassword')}</label>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, powerMonitor, protocol, net, clipboard, ClipboardItem } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, powerMonitor, protocol, net, clipboard, ClipboardItem, safeStorage } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -219,11 +219,67 @@ const writePasswords = (passwords) => writeVault(getPasswordsFilePath(), require
 
 // 'setup' (no vault yet, or a pre-1.0 plaintext one), 'locked', 'unlocked',
 // or 'error' (unreadable file; the UI must not offer setup, which would overwrite it).
+// "Remember on this computer": a copy of the vault key encrypted by the OS
+// (safeStorage: DPAPI on Windows, Keychain on macOS), so only this OS account
+// on this computer can use it. Kept in its own file, not in the vault, so a
+// copied vault doesn't carry it along.
+const getDeviceUnlockPath = () => path.join(app.getPath('userData'), 'device-unlock.bin');
+let triedDeviceUnlock = false;
+
+// Uses the async safeStorage API; the sync one is removed in Electron 46.
+async function canRemember() {
+  // On Linux without a keyring, safeStorage falls back to a hardcoded key.
+  if (process.platform === 'linux' && safeStorage.getSelectedStorageBackend() === 'basic_text') return false;
+  return safeStorage.isAsyncEncryptionAvailable();
+}
+
+async function rememberKey(key) {
+  await fs.writeFile(getDeviceUnlockPath(), await safeStorage.encryptStringAsync(key.toString('base64')));
+}
+
+async function isRemembered() {
+  try {
+    await fs.access(getDeviceUnlockPath());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const forgetDevice = () => fs.rm(getDeviceUnlockPath(), { force: true });
+
+// Returns the vault key, or null. A stored key that no longer opens this vault
+// (other account or computer, vault set up again) is deleted.
+async function readRememberedKey() {
+  let encrypted;
+  try {
+    encrypted = await fs.readFile(getDeviceUnlockPath());
+  } catch {
+    return null;
+  }
+  try {
+    const { result, shouldReEncrypt } = await safeStorage.decryptStringAsync(encrypted);
+    const key = Buffer.from(result, 'base64');
+    await readVault(getPasswordsFilePath(), key);
+    if (shouldReEncrypt) await rememberKey(key); // the OS rotated its key
+    return key;
+  } catch {
+    await forgetDevice();
+    return null;
+  }
+}
+
 ipcMain.handle('vault-status', async () => {
   try {
     const status = await vaultStatus(getPasswordsFilePath());
     if (status !== 'encrypted') return { status: 'setup', hasExistingPasswords: status === 'plaintext' };
-    return { status: vaultKey ? 'unlocked' : 'locked' };
+    // Open automatically once per launch; after a lock the user clicks "Unlock on this computer".
+    if (!vaultKey && !triedDeviceUnlock) {
+      triedDeviceUnlock = true;
+      vaultKey = await readRememberedKey();
+    }
+    if (vaultKey) return { status: 'unlocked' };
+    return { status: 'locked', remembered: await isRemembered() };
   } catch (err) {
     return { status: 'error', message: err.message };
   }
@@ -232,6 +288,7 @@ ipcMain.handle('vault-status', async () => {
 ipcMain.handle('setup-vault', async (event, password) => {
   requireNewPassword(password);
   const { key, recoveryCode } = await createVault(getPasswordsFilePath(), password);
+  await forgetDevice();
   vaultKey = key;
   return { recoveryCode };
 });
@@ -262,6 +319,22 @@ ipcMain.handle('change-password', async (event, { currentPassword, newPassword }
   if (!key) return { ok: false };
   await setPassword(getPasswordsFilePath(), key, newPassword);
   return { ok: true };
+});
+
+ipcMain.handle('unlock-remembered', async () => {
+  const key = await readRememberedKey();
+  if (!key) return { ok: false };
+  vaultKey = key;
+  return { ok: true };
+});
+
+ipcMain.handle('get-remember', async () => ({ available: await canRemember(), remembered: await isRemembered() }));
+
+ipcMain.handle('set-remember', async (event, enabled) => {
+  const key = requireUnlocked();
+  if (!enabled) return forgetDevice();
+  if (!(await canRemember())) throw new Error('This computer cannot store the key securely.');
+  await rememberKey(key);
 });
 
 ipcMain.handle('new-recovery-code', async () => {

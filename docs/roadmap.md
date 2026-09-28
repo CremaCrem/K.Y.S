@@ -23,7 +23,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 ### Later
 
-- [ ] "Remember on this computer": unlock with the Windows login (Electron `safeStorage`). Convenience, not recovery.
+- [x] "Remember on this computer": unlock with the Windows login (Electron `safeStorage`). Convenience, not recovery.
 - [ ] Encrypted exports.
 
 ## Phase 3: Hardening ✅ v1.1.0
@@ -41,12 +41,12 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 - [ ] Health view: list the reused, old, and weak entries that `get-stats` already counts.
 - [ ] Import Chrome / Edge / Firefox CSV exports.
-- [ ] Opt-in breach check via Have I Been Pwned (k-anonymity: only 5 hash characters leave the machine).
 - [ ] Favorites and sorting.
 
 ## Not planned
 
 - Cloud sync, browser extension, mobile app. Each needs a server or a separate app.
 - TOTP storage: puts both login factors in one file.
+- Breach checks (Have I Been Pwned) and site icons: both need network access, and KYS makes none.
 - Password hints: stored unencrypted and usually give the password away.
 - Any hidden or developer-held way into users' vaults. See [security.md](security.md#the-recovery-kit-and-helping-family).
