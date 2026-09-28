@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+### [0.2.3] - 2026-09-28
+
 #### Fixed
 - A damaged vault file no longer shows as empty and gets overwritten on the next save. KYS now shows an error on startup instead.
 
 #### Added
 - Saves are atomic, and the previous version of the vault is kept as `passwords.json.bak`.
+- Windows installer is built and published to GitHub Releases automatically when a version tag is pushed.
 - Project documentation in `docs/` (architecture, development, security, roadmap) and `AGENTS.md` for coding agents.
 
 #### Removed
