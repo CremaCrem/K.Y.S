@@ -434,6 +434,16 @@ ipcMain.handle('update-password', async (event, { id, updates }) => {
   return { success: true, message: 'Password updated successfully!' };
 });
 
+// Star/unstar. Not an edit: leaves updatedAt and passwordChangedAt alone.
+ipcMain.handle('set-favorite', async (event, { id, favorite }) => {
+  const passwords = await readPasswords();
+  const entry = passwords.find(p => p.id === id);
+  if (!entry) throw new Error('Password entry not found');
+  if (favorite) entry.favorite = true;
+  else delete entry.favorite;
+  await writePasswords(passwords);
+});
+
 // Delete a password by ID
 ipcMain.handle('delete-password', async (event, id) => {
   const passwords = await readPasswords();

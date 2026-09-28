@@ -52,6 +52,7 @@ New passwords must be at least 8 characters; `main.js` enforces it, the UI mirro
 | `savePassword(data)` | `save-password` | Adds an entry. `site`, `username`, `password` are required. |
 | `updatePassword(id, updates)` | `update-password` | Merges `updates` into one entry, sets `updatedAt`, and `passwordChangedAt` when the password changed. |
 | `deletePassword(id)` | `delete-password` | Removes one entry. |
+| `setFavorite(id, favorite)` | `set-favorite` | Stars or unstars an entry. Not an edit: `updatedAt` and `passwordChangedAt` stay as they are. |
 | `checkDuplicate(site, username)` | `check-duplicate` | Case-insensitive match on site + username. The returned entry has no `password`. |
 | `exportPasswords(masterPassword, filePassword)` | `export-passwords` | Checks the master password (`{ ok: false, error: 'wrongPassword' }` if wrong), then save dialog, writes a `.kys` export encrypted with `filePassword`, or the master password if omitted. `{ ok, count }`. |
 | `importPasswords()` | `import-passwords` | Open dialog. An old plain JSON export is merged right away (`{ ok, imported, skipped }`). An encrypted export stays in `main.js` and returns `{ needsPassword, fileName }`. Anything else: `{ error: 'notExportFile' }`. |
@@ -92,6 +93,7 @@ The file is encrypted (format v2, since 1.0.0). Details and reasoning in [securi
   "password": "…",
   "category": "Email",
   "notes": "optional",
+  "favorite": true,
   "createdAt": "ISO date",
   "updatedAt": "ISO date, set on edit",
   "passwordChangedAt": "ISO date, set when the password changes",
@@ -99,7 +101,7 @@ The file is encrypted (format v2, since 1.0.0). Details and reasoning in [securi
 }
 ```
 
-`category`, `notes`, `updatedAt`, `passwordChangedAt`, `importedAt` are optional. Pre-1.0 entries without an `id` get one during setup.
+`category`, `notes`, `favorite`, `updatedAt`, `passwordChangedAt`, `importedAt` are optional. Pre-1.0 entries without an `id` get one during setup.
 
 How `vault.js` protects the file:
 
@@ -131,7 +133,7 @@ See [security.md](security.md) for how the vault is (and is not) protected.
 - `src/components/RecoveryKit.jsx`: shows a new recovery code with Print / Save as PDF; continuing requires typing its last 4 characters. Rendered by `App.js` above everything else so an auto-lock can't hide an unsaved code.
 - `src/components/SecurityModal.jsx`: change master password, create a new recovery kit. Opened from the shield icon in the title bar (next to the lock icon).
 - `src/pages/HomePage.jsx`: add-password form, generator, duplicate warning.
-- `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, and the health tiles (Weak / Reused / Old), which filter the list; cards show a badge per issue.
+- `src/pages/EntriesPage.jsx`: list, search, edit, delete, import/export, and the health tiles (Weak / Reused / Old), which filter the list; cards show a badge per issue. Favorites are listed first; the star button filters to favorites; the sort (name, recently added, recently changed) is saved in `localStorage` key `sortBy`.
 - `src/components/ExportModal.jsx`, `ImportModal.jsx`: password-protected export and import. `ModalShell.jsx` is the shared dialog frame.
 - `src/context/LanguageContext.js`: translations (English, Spanish, Filipino). Choice saved in `localStorage` key `language`.
 - Themes: `light`, `dark`, `pink`, `vaporwave`, `alpha-wolf`, cycled from the title bar. Saved in `localStorage` key `theme`.

@@ -41,7 +41,7 @@ Ordered by risk: stop data loss, then encrypt, then add features. Tick items off
 
 - [x] Password health dashboard: Weak / Reused / Old tiles filter the list, with a badge on each affected entry and a tip on how to fix it.
 - [ ] Import Chrome / Edge / Firefox CSV exports.
-- [ ] Favorites and sorting.
+- [x] Favorites and sorting.
 
 ## Not planned
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEye, FaEyeSlash, FaCopy, FaCheck, FaStickyNote } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaCopy, FaCheck, FaStickyNote, FaStar, FaRegStar } from 'react-icons/fa';
 import { HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2';
 import Modal from './Modal';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,7 +13,7 @@ const ISSUE_STYLES = {
 };
 const ISSUE_LABELS = { weak: 'weak', reused: 'reusedBadge', old: 'oldBadge' };
 
-const EntryCard = ({ id, site, username, category, notes, issues, compact = false, onDelete, onEdit }) => {
+const EntryCard = ({ id, site, username, category, notes, issues, favorite, onFavorite, compact = false, onDelete, onEdit }) => {
   const { t } = useLanguage();
   const [revealed, setRevealed] = useState(null);
   const [editPassword, setEditPassword] = useState('');
@@ -71,6 +71,19 @@ const EntryCard = ({ id, site, username, category, notes, issues, compact = fals
     setIsModalOpen(true);
   };
 
+  // Always visible when starred; otherwise shown on hover (grid) or faintly (list).
+  const favoriteButton = (size) => (
+    <button
+      onClick={(e) => { e.stopPropagation(); onFavorite(!favorite); }}
+      className={`rounded flex items-center justify-center transition-all ${compact ? 'w-6 h-6' : 'w-8 h-8'} ${
+        favorite ? 'text-amber-400' : `text-text-secondary hover:text-amber-400 ${compact ? 'opacity-0 group-hover:opacity-100' : 'opacity-50 hover:opacity-100'}`
+      }`}
+      title={t(favorite ? 'removeFavorite' : 'addFavorite')}
+    >
+      {favorite ? <FaStar size={size} /> : <FaRegStar size={size} />}
+    </button>
+  );
+
   const issueBadges = issues?.length > 0 && (
     <div className="flex flex-wrap gap-1 mt-1">
       {issues.map((issue) => (
@@ -117,7 +130,10 @@ const EntryCard = ({ id, site, username, category, notes, issues, compact = fals
                 {issueBadges}
               </div>
             </div>
-            {notes && <FaStickyNote className="text-button opacity-50" size={10} />}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {notes && <FaStickyNote className="text-button opacity-50" size={10} />}
+              {favoriteButton(12)}
+            </div>
           </div>
 
           {/* Password Row */}
@@ -194,6 +210,7 @@ const EntryCard = ({ id, site, username, category, notes, issues, compact = fals
           </div>
 
           <div className="flex items-center gap-0.5">
+            {favoriteButton(16)}
             {notes && (
               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-button" title={notes}>
                 <FaStickyNote size={14} />

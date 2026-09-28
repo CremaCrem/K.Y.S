@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { HiArrowLeft, HiArrowDownTray, HiArrowUpTray } from 'react-icons/hi2';
-import { FaGamepad, FaEnvelope, FaGlobe, FaDesktop, FaUniversity, FaShoppingCart, FaBriefcase, FaFilm, FaSearch, FaTh, FaList } from 'react-icons/fa';
+import { FaGamepad, FaEnvelope, FaGlobe, FaDesktop, FaUniversity, FaShoppingCart, FaBriefcase, FaFilm, FaSearch, FaTh, FaList, FaStar } from 'react-icons/fa';
 import EntryCard from '../components/EntryCard';
 import SuccessAnimation from '../components/SuccessAnimation';
 import ExportModal from '../components/ExportModal';
@@ -19,6 +19,8 @@ const EntriesPage = ({ onBack }) => {
   const [showExport, setShowExport] = useState(false);
   const [importStart, setImportStart] = useState(null);
   const [healthFilter, setHealthFilter] = useState(''); // '', 'weak', 'reused', or 'old'
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [sortBy, setSortBy] = useState(() => localStorage.getItem('sortBy') || 'name');
 
   const categories = [
     { id: 'Games', icon: FaGamepad, color: 'bg-amber-400' },
@@ -76,6 +78,20 @@ const EntriesPage = ({ onBack }) => {
     }
   };
 
+  const handleFavorite = async (id, favorite) => {
+    try {
+      await window.electron.setFavorite(id, favorite);
+      setPasswords(prev => prev.map(p => p.id === id ? { ...p, favorite } : p));
+    } catch (error) {
+      console.error('Failed to update favorite:', error);
+    }
+  };
+
+  const changeSort = (value) => {
+    setSortBy(value);
+    localStorage.setItem('sortBy', value);
+  };
+
   const handleImport = async () => {
     try {
       const result = await window.electron.importPasswords();
@@ -96,8 +112,17 @@ const EntriesPage = ({ onBack }) => {
       password.username?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? password.category === selectedCategory : true;
     const matchesHealth = !healthFilter || stats?.issues[password.id]?.includes(healthFilter);
-    return matchesSearch && matchesCategory && matchesHealth;
+    const matchesFavorite = !favoritesOnly || password.favorite;
+    return matchesSearch && matchesCategory && matchesHealth && matchesFavorite;
   });
+
+  // Favorites first, then the chosen order. Dates are ISO strings, so they compare as text.
+  const sorts = {
+    name: (a, b) => getSiteName(a).localeCompare(getSiteName(b), undefined, { sensitivity: 'base' }),
+    newest: (a, b) => (b.importedAt || b.createdAt || '').localeCompare(a.importedAt || a.createdAt || ''),
+    changed: (a, b) => (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || ''),
+  };
+  filteredPasswords.sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || (sorts[sortBy] || sorts.name)(a, b));
 
   // Group passwords by category for grid view
   const groupedPasswords = filteredPasswords.reduce((acc, password) => {
@@ -213,6 +238,27 @@ const EntriesPage = ({ onBack }) => {
             </button>
           </div>
 
+          {/* Favorites and sorting */}
+          <button
+            onClick={() => setFavoritesOnly(!favoritesOnly)}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+              favoritesOnly ? 'bg-white/30 text-amber-300' : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+            title={t('favoritesOnly')}
+          >
+            <FaStar size={14} />
+          </button>
+          <select
+            value={sortBy}
+            onChange={(e) => changeSort(e.target.value)}
+            className="h-9 px-2 rounded-lg bg-white/10 text-white text-xs cursor-pointer focus:outline-none [&>option]:text-gray-800"
+            title={t('sortBy')}
+          >
+            <option value="name">{t('sortName')}</option>
+            <option value="newest">{t('sortNewest')}</option>
+            <option value="changed">{t('sortChanged')}</option>
+          </select>
+
           {/* View Toggle */}
           <div className="flex bg-white/10 rounded-lg p-0.5">
             <button
@@ -270,6 +316,8 @@ const EntriesPage = ({ onBack }) => {
                         category={entry.category} 
                         notes={entry.notes}
                         issues={stats?.issues[entry.id]}
+                        favorite={!!entry.favorite}
+                        onFavorite={(favorite) => handleFavorite(entry.id, favorite)}
                         compact={true}
                         onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 
                         onDelete={() => handleDelete(entry.id)}
@@ -292,6 +340,8 @@ const EntriesPage = ({ onBack }) => {
                 category={entry.category} 
                 notes={entry.notes}
                 issues={stats?.issues[entry.id]}
+                favorite={!!entry.favorite}
+                onFavorite={(favorite) => handleFavorite(entry.id, favorite)}
                 compact={false}
                 onEdit={(updatedEntry) => handleEdit(entry.id, updatedEntry)} 
                 onDelete={() => handleDelete(entry.id)}

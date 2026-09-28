@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('electron', {
   savePassword: (data) => ipcRenderer.invoke('save-password', data),
   updatePassword: (id, updates) => ipcRenderer.invoke('update-password', { id, updates }),
   deletePassword: (id) => ipcRenderer.invoke('delete-password', id),
+  setFavorite: (id, favorite) => ipcRenderer.invoke('set-favorite', { id, favorite }),
   
   // New features
   checkDuplicate: (site, username) => ipcRenderer.invoke('check-duplicate', { site, username }),
