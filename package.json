@@ -38,8 +38,12 @@
       "target": "nsis",
       "icon": "assets/KYS.ico"
     },
+    "mac": {
+      "icon": "assets/KYS.icns"
+    },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "assets/KYS.png"
     },
     "electronFuses": {
       "runAsNode": false,

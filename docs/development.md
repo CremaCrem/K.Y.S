@@ -41,7 +41,7 @@ profiles.js      Profiles list and folders (+ profiles.test.js)
 preload.js       Bridge exposing window.electron to the UI
 src/             React UI (pages/, components/, context/)
 public/          CRA static files
-assets/          App icon used by electron-builder
+assets/          App icons for electron-builder (KYS.ico/.icns/.png); source/ has the SVG masters and the dark variant
 scripts/         fetch-icons.sh: rebuilds the bundled icon font
 docs/            Project documentation (this folder)
 docs/design-system/  The K.Y.S design system (tokens, components, guidelines)

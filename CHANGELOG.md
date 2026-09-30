@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ### [Unreleased]
 
+#### Changed
+- New app icon.
+
 ### [2.1.0] - 2026-09-28
 
 #### Changed
