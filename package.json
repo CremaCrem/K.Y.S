@@ -13,7 +13,8 @@
     "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build",
     "test": "node --test vault.test.js profiles.test.js src/utils/*.test.mjs",
     "eject": "react-scripts eject",
-    "package": "electron-builder --win"
+    "package": "electron-builder --win",
+    "package:mac": "electron-builder --mac --dir"
   },
   "build": {
     "extends": null,
@@ -46,6 +47,7 @@
       "icon": "assets/KYS.png"
     },
     "electronFuses": {
+      "resetAdHocDarwinSignature": true,
       "runAsNode": false,
       "enableNodeOptionsEnvironmentVariable": false,
       "enableNodeCliInspectArguments": false,

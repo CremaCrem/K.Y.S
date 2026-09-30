@@ -24,6 +24,7 @@ Electron only ships security fixes for its latest 3 major versions. Check `npm v
 | `npm test` | Runs `vault.test.js`, `profiles.test.js`, and `src/utils/*.test.mjs` with Node's built-in test runner. |
 | `npm run electron-dev` | Electron only, loading `build/`. Run `build` first. |
 | `npm run package` | Builds the Windows installer (`.exe`) into `dist/` with electron-builder. |
+| `npm run package:mac` | Builds `KYS.app` into `dist/mac-arm64/` for your own Mac. It's ad-hoc signed (no Apple Developer account needed); without a signature, Apple Silicon Macs kill the app on launch because flipping the Electron fuses breaks Electron's original one. |
 
 Before committing, make sure both pass (the build treats warnings as errors, as in the release workflow):
 
